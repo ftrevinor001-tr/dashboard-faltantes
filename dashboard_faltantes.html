@@ -259,58 +259,47 @@ td{padding:8px 13px;vertical-align:middle;}
 </head>
 <body>
 <div id="upload-screen">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;min-height:80vh;justify-content:center;padding:20px">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:14px;padding:20px">
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:40px;margin-bottom:10px">📋</div>
+      <div style="font-size:20px;font-weight:700;color:#1a2035">Dashboard de Faltantes</div>
+      <div style="font-size:13px;color:#6b7a99;margin-top:4px">Selecciona cómo cargar los datos</div>
+    </div>
 
-    <!-- Estado: Cargando -->
-    <div id="state-loading" style="background:#fff;border:1px solid #e2e6ed;border-radius:16px;padding:40px 50px;text-align:center;max-width:500px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.06)">
-      <div style="font-size:42px;margin-bottom:14px;animation:spin 2s linear infinite;display:inline-block" id="loading-icon">⏳</div>
-      <div style="font-size:17px;font-weight:700;color:#1a2035;margin-bottom:6px" id="loading-title">Cargando datos...</div>
-      <div style="font-size:13px;color:#6b7a99;margin-bottom:18px" id="loading-sub">Buscando archivo data.json</div>
-      <div style="height:4px;background:#e8f0fe;border-radius:4px;overflow:hidden">
-        <div id="loading-progress" style="height:100%;width:30%;background:#1e3a5f;transition:width .4s;border-radius:4px;animation:prog 1.5s ease-in-out infinite"></div>
+    <!-- Opción A: Servidor automático -->
+    <div style="background:#fff;border:2px solid #1e3a5f;border-radius:14px;padding:20px 28px;max-width:480px;width:100%;cursor:pointer" onclick="loadFromServer()">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:30px">☁️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:#1a2035">Cargar desde el servidor</div>
+          <div style="font-size:11px;color:#6b7a99;margin-top:2px">Usa el archivo data.json generado por GitHub Actions</div>
+        </div>
+        <div id="server-status" style="font-size:11px;color:#6b7a99">Clic para cargar</div>
+      </div>
+      <div id="server-progress" style="display:none;margin-top:12px">
+        <div style="height:3px;background:#e8f0fe;border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:40%;background:#1e3a5f;border-radius:4px;animation:prog 1.2s ease-in-out infinite"></div>
+        </div>
+        <div style="font-size:11px;color:#6b7a99;margin-top:6px;text-align:center" id="server-msg">Conectando...</div>
+      </div>
+      <div id="server-error" style="display:none;font-size:11px;color:#c0392b;margin-top:10px;background:#fdecea;padding:8px 12px;border-radius:6px;line-height:1.5"></div>
+    </div>
+
+    <!-- Opción B: Excel manual -->
+    <div style="background:#fff;border:1.5px solid #e2e6ed;border-radius:14px;padding:20px 28px;max-width:480px;width:100%;cursor:pointer" onclick="document.getElementById('file-input').click()">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:30px">📂</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:#1a2035">Cargar archivo Excel</div>
+          <div style="font-size:11px;color:#6b7a99;margin-top:2px">Selecciona <strong>Historico_de_faltantes.xlsx</strong> de tu equipo</div>
+        </div>
+        <div style="font-size:20px;color:#a0a9be">›</div>
       </div>
     </div>
 
-    <!-- Estado: Error con opciones -->
-    <div id="state-error" style="display:none;max-width:540px;width:100%">
-
-      <!-- Opción A: Cargar Excel manualmente -->
-      <div style="background:#fff;border:2px solid #1e3a5f;border-radius:14px;padding:24px 28px;margin-bottom:12px;cursor:pointer" onclick="document.getElementById('file-input').click()">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="font-size:32px">📂</div>
-          <div>
-            <div style="font-size:15px;font-weight:700;color:#1a2035">Cargar Excel manualmente</div>
-            <div style="font-size:12px;color:#6b7a99;margin-top:3px">Selecciona <strong>Historico_de_faltantes.xlsx</strong> de tu computadora</div>
-          </div>
-          <div style="margin-left:auto;font-size:22px;color:#1e3a5f">›</div>
-        </div>
-      </div>
-
-      <!-- Opción B: Cómo generar data.json (GitHub) -->
-      <div style="background:#f8f9fd;border:1px solid #e2e6ed;border-radius:14px;padding:20px 24px;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:700;color:#1a2035;margin-bottom:12px">☁️ Para que cargue automáticamente (GitHub)</div>
-        <div style="font-size:12px;color:#475569;line-height:1.8">
-          El dashboard busca un archivo <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px;color:#1e3a5f">data.json</code> que se genera automáticamente cuando subes el Excel a GitHub.<br><br>
-          <strong>Pasos para generarlo:</strong>
-          <ol style="margin:8px 0 0 16px;line-height:2">
-            <li>Ve a tu repositorio en <strong>github.com</strong></li>
-            <li>Entra a la carpeta <code style="background:#e8f0fe;padding:1px 4px;border-radius:3px">data/</code></li>
-            <li>Clic en <strong>"Add file → Upload files"</strong></li>
-            <li>Sube el Excel y haz clic en <strong>"Commit changes"</strong></li>
-            <li>Espera ~2 minutos → ve a la pestaña <strong>"Actions"</strong> hasta que aparezca ✅</li>
-            <li>Recarga esta página</li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- Error técnico -->
-      <div id="upload-error" style="display:none;font-size:12px;color:#c0392b;background:#fdecea;padding:10px 14px;border-radius:8px;border:1px solid #f5c6cb;margin-bottom:8px"></div>
-
-      <button onclick="fetchData()" style="width:100%;padding:10px;background:#f0f4ff;border:1.5px solid #c9d4f0;border-radius:8px;color:#1e3a5f;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
-        🔄 Intentar cargar de nuevo
-      </button>
+    <div style="font-size:11px;color:#a0a9be;max-width:480px;text-align:center">
+      Para que "Cargar desde el servidor" funcione, primero sube el Excel a la carpeta <code style="background:#f0f4ff;padding:1px 5px;border-radius:3px">data/</code> en GitHub y espera que el Actions termine con ✅
     </div>
-
   </div>
   <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadExcel(this)" style="display:none"/>
 </div>
@@ -1022,62 +1011,72 @@ const _baseHTML = document.documentElement.outerHTML;
 const DATA_URL = window.__DATA_URL || './data.json';
 
 async function fetchData() {
-  const prog  = document.getElementById('loading-progress');
-  const title = document.getElementById('loading-title');
-  const sub   = document.getElementById('loading-sub');
-  const errEl = document.getElementById('upload-error');
-  const fallback = document.getElementById('fallback-box');
-  if(errEl) errEl.style.display='none';
-
-  // Si el dashboard ya está visible, mostrar indicador en header
+  // Called from header "Actualizar datos" button when dashboard is open
   const isOpen = document.getElementById('dashboard').style.display !== 'none';
   if(isOpen){
-    const btn = document.querySelector('.btn-reload');
-    const orig = btn ? btn.textContent : '';
-    if(btn){ btn.textContent='⏳ Actualizando...'; btn.disabled=true; }
+    const btns = document.querySelectorAll('.btn-reload');
+    btns.forEach(b=>{ b._orig=b.textContent; b.textContent='⏳...'; b.disabled=true; });
     try {
       const data = await loadDataJSON();
       applySnapshot(data);
-      if(btn){ btn.textContent=orig; btn.disabled=false; }
     } catch(e) {
-      if(btn){ btn.textContent=orig; btn.disabled=false; }
-      alert('No se pudieron actualizar los datos.\n\nVerifica que:\n1. El Excel fue subido a la carpeta data/ en GitHub\n2. El proceso en Actions terminó (✅ verde)\n3. Hay conexión a internet\n\nError: ' + e.message);
+      alert('No se pudo actualizar.\n\n' + e.message + '\n\nVerifica que el Excel esté en la carpeta data/ de GitHub y que el Actions haya terminado ✅.');
     }
+    btns.forEach(b=>{ b.textContent=b._orig||'↺ Actualizar datos'; b.disabled=false; });
     return;
   }
+  // Called during initial load (auto-init from data.json)
+  await loadFromServer();
+}
 
-  // Pantalla de carga inicial
-  if(prog)  prog.style.width='20%';
-  if(title) title.textContent='Cargando datos...';
-  if(sub)   sub.textContent='Conectando con la fuente de datos';
+async function loadFromServer() {
+  const statusEl  = document.getElementById('server-status');
+  const progressEl= document.getElementById('server-progress');
+  const msgEl     = document.getElementById('server-msg');
+  const errorEl   = document.getElementById('server-error');
+
+  if(statusEl)  statusEl.textContent = '⏳ Cargando...';
+  if(progressEl)progressEl.style.display='block';
+  if(errorEl)   errorEl.style.display='none';
+  if(msgEl)     msgEl.textContent = 'Conectando con el servidor...';
 
   try {
-    if(prog) prog.style.width='50%';
-    const data = await loadDataJSON();
-    if(prog) prog.style.width='90%';
-    if(title) title.textContent='Procesando...';
-    await new Promise(r=>setTimeout(r,200));
-    if(prog) prog.style.width='100%';
+    const ctrl  = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 10000);
+    if(msgEl) msgEl.textContent = 'Descargando data.json...';
+    const res = await fetch(DATA_URL + '?t=' + Date.now(), {signal: ctrl.signal});
+    clearTimeout(timer);
+
+    if(!res.ok) {
+      throw new Error(
+        res.status === 404
+          ? 'Archivo data.json no encontrado (error 404).\nSube el Excel a la carpeta data/ en GitHub y espera que el Actions termine ✅.'
+          : 'Error ' + res.status + ' al conectar con el servidor.'
+      );
+    }
+    if(msgEl) msgEl.textContent = 'Procesando datos...';
+    const data = await res.json();
     applySnapshot(data);
+
   } catch(e) {
-    // Mostrar pantalla de error con opciones
-    const stateLoad = document.getElementById('state-loading');
-    const stateErr  = document.getElementById('state-error');
-    const errEl     = document.getElementById('upload-error');
-    if(stateLoad) stateLoad.style.display='none';
-    if(stateErr)  stateErr.style.display='block';
-    if(errEl){ errEl.textContent='Error técnico: '+e.message; errEl.style.display='block'; }
+    if(progressEl) progressEl.style.display='none';
+    const msg = e.name==='AbortError'
+      ? 'Sin respuesta del servidor (10s). Verifica tu conexión o usa el Excel manual.'
+      : e.message;
+    if(statusEl) statusEl.textContent = '❌ Error';
+    if(errorEl){ errorEl.textContent = msg; errorEl.style.display='block'; }
   }
 }
 
 async function loadDataJSON() {
-  const res = await fetch(DATA_URL + '?t=' + Date.now()); // evitar caché
-  if(!res.ok) throw new Error(
-    res.status === 404
-      ? 'Archivo data.json no encontrado. Ejecuta actualizar_datos.py para generar los datos.'
-      : `Error ${res.status} al obtener los datos.`
-  );
-  return res.json();
+  const ctrl  = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 10000);
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now(), {signal: ctrl.signal});
+    clearTimeout(timer);
+    if(!res.ok) throw new Error('data.json error ' + res.status);
+    return res.json();
+  } catch(e) { clearTimeout(timer); throw e; }
 }
 
 function applySnapshot(data) {
@@ -2161,10 +2160,9 @@ window.addEventListener('load', function(){
   if(window.__SNAP){
     // Archivo guardado standalone: cargar snapshot embebido
     applySnapshot(window.__SNAP);
-  } else {
-    // Modo online: intentar cargar data.json automáticamente
-    fetchData();
   }
+  // En modo online: mostrar pantalla de opciones directamente (no fetch automático)
+  // El usuario elige: servidor o Excel manual
 });
 </script>
 </body>
