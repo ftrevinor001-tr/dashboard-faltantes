@@ -184,16 +184,6 @@ def main():
     }
 
     # ── Guardar data.json ─────────────────────────────────────────────────────
-    # Limpiar NaN antes de serializar
-    import math
-    def clean_nan(obj):
-        if isinstance(obj, float):
-            return 0 if (math.isnan(obj) or math.isinf(obj)) else round(obj, 6)
-        if isinstance(obj, dict): return {k: clean_nan(v) for k, v in obj.items()}
-        if isinstance(obj, list): return [clean_nan(i) for i in obj]
-        return obj
-    snap = clean_nan(snap)
-
     out_path = ROOT / "data.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(snap, f, ensure_ascii=False, separators=(",", ":"))
