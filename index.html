@@ -109,14 +109,20 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
   <div class="opt-card" onclick="loadFromServer()">
     <div class="opt-row">
       <div class="opt-icon">☁️</div>
-      <div><div class="opt-title">Cargar desde el servidor</div><div class="opt-sub">Usa el archivo data.json generado por GitHub Actions</div></div>
-      <div class="opt-arr">›</div>
+      <div>
+        <div class="opt-title" id="server-title">Cargar desde el servidor</div>
+        <div class="opt-sub">Usa el archivo data.json generado por GitHub Actions</div>
+      </div>
+      <div class="opt-arr" id="server-arr">›</div>
     </div>
-    <div id="server-progress">
+    <div id="server-progress" style="display:none;margin-top:10px">
       <div class="prog-bar"><div class="prog-fill"></div></div>
-      <div id="server-msg">Conectando...</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+        <div id="server-msg" style="font-size:11px;color:#6b7a99">Conectando...</div>
+        <div id="server-size" style="font-size:10px;color:#a0a9be"></div>
+      </div>
     </div>
-    <div id="server-error"></div>
+    <div id="server-error" style="display:none;font-size:11px;color:#c0392b;margin-top:8px;background:#fdecea;padding:8px 10px;border-radius:6px;line-height:1.5"></div>
   </div>
 
   <div class="opt-card secondary" onclick="document.getElementById('file-input').click()">
@@ -348,7 +354,7 @@ async function loadFromServer(){
   if(isOpen){
     const btns=document.querySelectorAll('.btn-reload');
     btns.forEach(b=>{b._orig=b.textContent;b.textContent='⏳...';b.disabled=true;});
-    try{const d=await fetchJSON();applySnap(d);}
+    try{const d=await fetchJSONWithProgress(null,null,null);applySnap(d);}
     catch(e){alert('Error al actualizar:\n'+e.message);}
     btns.forEach(b=>{b.textContent=b._orig||'☁️ Actualizar';b.disabled=false;});
     return;
@@ -367,16 +373,7 @@ async function loadFromServer(){
     }
   }
 }
-async function fetchJSON(){
-  const c=new AbortController();
-  const t=setTimeout(()=>c.abort(),10000);
-  try{
-    const r=await fetch(DATA_URL+'?t='+Date.now(),{signal:c.signal});
-    clearTimeout(t);
-    if(!r.ok) throw new Error('HTTP '+r.status+(r.status===404?' — data.json no existe':''));
-    return r.json();
-  }catch(e){clearTimeout(t);throw e;}
-}
+// fetchJSON reemplazado por fetchJSONWithProgress
 
 // ── EXCEL LOAD ────────────────────────────────────────────────────────────────
 function loadExcel(input){
