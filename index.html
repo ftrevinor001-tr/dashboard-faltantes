@@ -331,7 +331,10 @@ async function loadServer(){
   if(prog)  prog.style.display='block';
   if(arr)   arr.style.display='none';
   if(title) title.textContent='Cargando datos...';
-  if(msg)   msg.textContent='Conectando...';
+  if(msg)   msg.textContent='⏳ Conectando con el servidor...';
+
+  // Yield para que el navegador pinte el estado de carga antes de hacer fetch
+  await new Promise(r=>setTimeout(r,80));
 
   try{
     const d=await doFetch(msg);
@@ -356,7 +359,7 @@ async function doFetch(msgEl){
   const ctrl=new AbortController();
   const t=setTimeout(()=>ctrl.abort(),30000);
   try{
-    if(msgEl) msgEl.textContent='Descargando datos...';
+    if(msgEl) msgEl.textContent='📡 Descargando datos desde GitHub...';
     const res=await fetch(DATA_URL+'?t='+Date.now(),{signal:ctrl.signal});
     clearTimeout(t);
     if(!res.ok) throw new Error(
@@ -364,7 +367,15 @@ async function doFetch(msgEl){
         ? 'data.json no encontrado. Sube el Excel a data/ en GitHub y ejecuta el Actions.'
         : 'Error HTTP '+res.status
     );
-    if(msgEl) msgEl.textContent='Procesando datos...';
+    // Mostrar tamaño si está disponible
+    const cl=res.headers.get('Content-Length');
+    if(cl && msgEl){
+      const kb=(+cl/1024).toFixed(0);
+      msgEl.textContent=`📦 Descargando ${(+kb).toLocaleString()} KB...`;
+      await new Promise(r=>setTimeout(r,40));
+    }
+    if(msgEl) msgEl.textContent='⚙️ Procesando datos...';
+    await new Promise(r=>setTimeout(r,40));
     return res.json();
   }catch(e){ clearTimeout(t); throw e; }
 }
