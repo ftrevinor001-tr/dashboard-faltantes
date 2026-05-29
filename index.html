@@ -100,39 +100,26 @@ h1{font-size:20px;font-weight:700;color:#1a2035}
 .si2:focus{border-color:#1e3a5f}
 .footer{text-align:center;color:#a0a9be;font-size:11px;margin-top:20px}
 select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:13px;color:#1a2035;background:#fff;font-family:inherit}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes prog{0%{margin-left:0;width:40%}50%{margin-left:60%;width:40%}100%{margin-left:0;width:40%}}
 </style>
 </head>
 <body>
 
 <div id="upload-screen">
-  <div style="text-align:center;margin-bottom:4px">
-    <div style="font-size:42px;margin-bottom:10px">📋</div>
-    <div style="font-size:20px;font-weight:700;color:#1a2035">Dashboard de Faltantes</div>
-    <div style="font-size:13px;color:#6b7a99;margin-top:4px">Selecciona cómo cargar los datos</div>
-  </div>
-
-  <div class="opt" onclick="loadServer()">
-    <div class="opt-row">
-      <div class="opt-ico">☁️</div>
-      <div><div class="opt-title" id="srv-title">Cargar desde el servidor</div>
-           <div class="opt-sub">Usa el archivo data.json generado por GitHub Actions</div></div>
-      <div class="opt-arr" id="srv-arr">›</div>
-    </div>
-    <div id="load-prog"><div class="pb"><div class="pf"></div></div><div id="load-msg"></div></div>
-    <div id="load-err"></div>
-  </div>
-
-  <div class="opt sec" onclick="document.getElementById('fi').click()">
-    <div class="opt-row">
-      <div class="opt-ico">📂</div>
-      <div><div class="opt-title">Cargar archivo Excel</div>
-           <div class="opt-sub">Selecciona <strong>Historico_de_faltantes.xlsx</strong> de tu equipo</div></div>
-      <div class="opt-arr">›</div>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px;padding:20px">
+    <div style="background:#fff;border:1px solid #e2e6ed;border-radius:16px;padding:40px 50px;text-align:center;max-width:480px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.06)">
+      <div style="font-size:38px;margin-bottom:14px;animation:spin 2s linear infinite;display:inline-block" id="load-ico">⏳</div>
+      <div style="font-size:17px;font-weight:700;color:#1a2035;margin-bottom:6px" id="srv-title">Cargando datos...</div>
+      <div style="font-size:12px;color:#6b7a99;margin-bottom:16px" id="load-msg">Conectando con el servidor</div>
+      <div id="load-prog"><div class="pb"><div class="pf"></div></div></div>
+      <div id="load-err" style="display:none;font-size:11px;color:#c0392b;margin-top:12px;background:#fdecea;padding:8px 12px;border-radius:6px;line-height:1.6;text-align:left"></div>
+      <div id="load-fallback" style="display:none;margin-top:16px;display:flex;flex-direction:column;gap:8px">
+        <button onclick="loadServer()" style="padding:8px 16px;background:#1e3a5f;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🔄 Reintentar servidor</button>
+        <button onclick="document.getElementById('fi').click()" style="padding:8px 16px;background:#fff;color:#1e3a5f;border:1.5px solid #c9d4f0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📂 Cargar Excel manualmente</button>
+      </div>
     </div>
   </div>
-
-  <div class="hint">Para usar el servidor sube el Excel a la carpeta <code style="background:#f0f4ff;padding:1px 5px;border-radius:3px">data/</code> en GitHub y espera que el Actions termine ✅</div>
   <input type="file" id="fi" accept=".xlsx,.xls" onchange="loadExcel(this)" style="display:none"/>
 </div>
 
@@ -147,6 +134,20 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
         <button class="hbtn" onclick="loadServer()">☁️ Actualizar desde servidor</button>
         <button class="hbtn" onclick="document.getElementById('fi').click()">📂 Cargar Excel</button>
       </div>
+    <!-- FILTRO DE FECHAS -->
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f2f8;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.6px">📅 Rango de fechas</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <label style="font-size:11px;color:#6b7a99">Desde</label>
+        <input type="date" id="f-inicio" onchange="applyDateFilter()" style="padding:5px 8px;border:1.5px solid #c9d4f0;border-radius:6px;font-size:12px;color:#1a2035;font-family:inherit"/>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <label style="font-size:11px;color:#6b7a99">Hasta</label>
+        <input type="date" id="f-fin" onchange="applyDateFilter()" style="padding:5px 8px;border:1.5px solid #c9d4f0;border-radius:6px;font-size:12px;color:#1a2035;font-family:inherit"/>
+      </div>
+      <button onclick="resetDateFilter()" style="padding:5px 10px;background:#f0f4ff;border:1px solid #c9d4f0;border-radius:6px;color:#1e3a5f;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">↺ Mes actual</button>
+      <span id="date-range-info" style="font-size:11px;color:#6b7a99;margin-left:4px"></span>
+    </div>
     </div>
     <div class="kpis" id="kpis"></div>
   </div>
@@ -348,10 +349,16 @@ async function loadServer(){
     if(title) title.textContent='Cargar desde el servidor';
     if(err){
       err.textContent = e.name==='AbortError'
-        ? '⏱ Sin respuesta (30s). Verifica tu conexión o usa el Excel manual.'
+        ? '⏱ Sin respuesta (30s). Verifica tu conexión o usa "Cargar Excel manualmente".'
         : '❌ '+e.message;
       err.style.display='block';
     }
+    // Mostrar botones de fallback
+    const fb=document.getElementById('load-fallback');
+    if(fb) fb.style.display='flex';
+    const ico=document.getElementById('load-ico');
+    if(ico){ ico.textContent='❌'; ico.style.animation='none'; }
+    if(prog) prog.style.display='none';
   }
 }
 
@@ -495,7 +502,9 @@ function render(){
   const sc=document.getElementById('r-comp');sc.innerHTML='<option value="TODOS">— Todos —</option><option value="__A__">▶ Área General</option>';
   compradores.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sc.appendChild(o);});
   Object.values(CH).forEach(ch=>{try{ch.destroy();}catch(e){}});CH={};
+  initDateFilter();
   renderCharts();renderPills();renderRes();initDet();renderDet();
+  updateKPIs(null);
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────────
@@ -504,12 +513,84 @@ function rkC(id,rk){
   if(!rk.length){const e=document.getElementById(id);if(e)e.parentElement.innerHTML='<p style="color:#6b7a99;text-align:center;padding:20px;font-size:13px">Sin faltantes</p>';return;}
   mC(id,'bar',{labels:rk.map(d=>d.n),datasets:[{label:'Faltantes',data:rk.map(d=>d.v),backgroundColor:rk.map(d=>d.c),borderRadius:5}]},{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a2035',bodyColor:'#4a5568',borderColor:'#e2e6ed',borderWidth:1,callbacks:{label:c=>'  '+c.parsed.x}}},scales:{x:{ticks:{color:'#6b7a99'},grid:{color:'#edf0f7'}},y:{ticks:{color:'#4a5568',font:{size:11}},grid:{color:'#edf0f7'}}}});
 }
+// ── DATE FILTER ───────────────────────────────────────────────────────────────
+let filteredFechas = [];
+
+function getDateRange(){
+  const fi=document.getElementById('f-inicio')?.value;
+  const ff=document.getElementById('f-fin')?.value;
+  return{fi,ff};
+}
+function getFilteredFechas(){
+  if(!G.fechas) return [];
+  const{fi,ff}=getDateRange();
+  return G.fechas.filter(f=>(!fi||f>=fi)&&(!ff||f<=ff));
+}
+function applyDateFilter(){
+  if(!G.fechas) return;
+  filteredFechas=getFilteredFechas();
+  const inf=document.getElementById('date-range-info');
+  if(inf) inf.textContent=`${filteredFechas.length} días en rango`;
+  renderCharts();
+}
+function resetDateFilter(){
+  if(!G.fechas) return;
+  // Default to current month
+  const now=new Date();
+  const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
+  const inicio=`${y}-${m}-01`;
+  const fin=new Date(y,now.getMonth()+1,0).toISOString().slice(0,10);
+  const fi=document.getElementById('f-inicio');
+  const ff=document.getElementById('f-fin');
+  if(fi) fi.value=inicio;
+  if(ff) ff.value=fin;
+  applyDateFilter();
+}
+function initDateFilter(){
+  resetDateFilter();
+}
+
+// ── KPI UPDATE BY COMPRADOR ───────────────────────────────────────────────────
+function updateKPIs(comp){
+  // comp=null means all compradores
+  const{totalByDay,clasByDay,compByDay,compClByDay,uf,pf,fU,compradores}=G;
+  let tH,tI,pT,cH;
+  if(!comp){
+    tH=totalByDay[uf]||0; tI=totalByDay[pf]||0;
+    pT=Math.max(0,...fU.map(f=>totalByDay[f]||0));
+    cH=G.clavesHoy||0;
+  } else {
+    const bd=compByDay[comp]||{};
+    tH=bd[uf]||0; tI=bd[pf]||0;
+    pT=Math.max(0,...fU.map(f=>bd[f]||0));
+    cH=null; // no universe data per comp
+  }
+  const pI=tI>0?+((tH-tI)/tI*100).toFixed(1):0;
+  const pP=pT>0?+((tH-pT)/pT*100).toFixed(1):0;
+  const tg=(v,l)=>`<span class="ktag ${v<0?'kdn':'kup'}">${v<0?'▼':'▲'} ${Math.abs(v)}% ${l}</span>`;
+  const MN2=['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const[,um,ud]=uf.split('-');
+  document.getElementById('bdg').textContent=`${ud} ${MN2[+um]}`;
+  function clVal(cl){
+    if(!comp) return clasByDay[cl]?.[uf]||0;
+    return (compClByDay[comp]?.[cl]?.[uf])||0;
+  }
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi" style="--kc:#c0392b"><div class="kpi-lbl">📦 Faltantes hoy${comp?' · '+comp.split(' ')[0]:''}</div><div class="kpi-val">${tH}</div><div class="kpi-foot">${tg(pI,'vs inicio')}${tg(pP,'vs pico')}</div></div>
+    <div class="kpi" style="--kc:#c0582a"><div class="kpi-lbl">🔴 Alta Rotación</div><div class="kpi-val">${clVal('ALTA ROTACIÓN')}</div></div>
+    <div class="kpi" style="--kc:#b8952a"><div class="kpi-lbl">🟡 Media Rotación</div><div class="kpi-val">${clVal('MEDIA ROTACIÓN')}</div></div>
+    <div class="kpi" style="--kc:#3a9688"><div class="kpi-lbl">🔵 Lenta Rotación</div><div class="kpi-val">${clVal('LENTA ROTACIÓN')}</div></div>
+    <div class="kpi" style="--kc:#7b68c8"><div class="kpi-lbl">⭐ Sagrados</div><div class="kpi-val">${clVal('SAGRADOS')}</div></div>
+    ${cH!==null?`<div class="kpi" style="--kc:#1e3a5f"><div class="kpi-lbl">🔍 Claves analizadas</div><div class="kpi-val">${cH.toLocaleString()}</div></div>`:''}`;
+}
+
 function renderCharts(){
   const{fechas,compradores,totalByDay,clasByDay,clavesTotal,compByDay,compClByDay,uf}=G;
-  const lbl=fechas.map(fF);
-  mC('c-total','line',{labels:lbl,datasets:[{label:'Total Faltantes',data:fechas.map(f=>totalByDay[f]||0),borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.08)',fill:true,tension:.3,pointRadius:3,borderWidth:2}]});
-  mC('c-stack','bar',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:fechas.map(f=>clasByDay[cl][f]||0),backgroundColor:CLC[cl]}))},{...BASE,scales:{x:{...BASE.scales.x,stacked:true},y:{...BASE.scales.y,stacked:true}}});
-  mC('c-lines','line',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:fechas.map(f=>clasByDay[cl][f]||0),borderColor:CLC[cl],backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,borderWidth:2}))});
+  const ff=filteredFechas.length?filteredFechas:fechas;
+  const lbl=ff.map(fF);
+  mC('c-total','line',{labels:lbl,datasets:[{label:'Total Faltantes',data:ff.map(f=>totalByDay[f]||0),borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.08)',fill:true,tension:.3,pointRadius:3,borderWidth:2}]});
+  mC('c-stack','bar',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:ff.map(f=>clasByDay[cl][f]||0),backgroundColor:CLC[cl]}))},{...BASE,scales:{x:{...BASE.scales.x,stacked:true},y:{...BASE.scales.y,stacked:true}}});
+  mC('c-lines','line',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:ff.map(f=>clasByDay[cl][f]||0),borderColor:CLC[cl],backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,borderWidth:2}))});
   renderCC();
   rkC('c-rk-alta', compradores.map((c,i)=>({n:S2N(c),v:compClByDay[c]['ALTA ROTACIÓN'][uf]||0,c:PAL[i%PAL.length]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v));
   rkC('c-rk-media',compradores.map((c,i)=>({n:S2N(c),v:compClByDay[c]['MEDIA ROTACIÓN'][uf]||0,c:PAL[i%PAL.length]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v));
@@ -524,9 +605,11 @@ function renderCC(){
 }
 function renderSC(k){
   const{fechas,compradores,compClByDay}=G,cl=SCL[k],lbl=fechas.map(fF);
-  const ds=compradores.filter(c=>aS[k].has(c)).map(c=>({label:c,data:fechas.map(f=>compClByDay[c][cl][f]||0),borderColor:PAL[compradores.indexOf(c)%PAL.length],backgroundColor:PAL[compradores.indexOf(c)%PAL.length],tension:.3,pointRadius:2,fill:false,borderWidth:2}));
-  if(CH['c-'+k]){CH['c-'+k].data.datasets=ds;CH['c-'+k].update();return;}
-  mC('c-'+k,'line',{labels:lbl,datasets:ds});
+  const ff2=filteredFechas.length?filteredFechas:fechas;
+  const lbl2=ff2.map(fF);
+  const ds=compradores.filter(c=>aS[k].has(c)).map(c=>({label:c,data:ff2.map(f=>compClByDay[c][cl][f]||0),borderColor:PAL[compradores.indexOf(c)%PAL.length],backgroundColor:PAL[compradores.indexOf(c)%PAL.length],tension:.3,pointRadius:2,fill:false,borderWidth:2}));
+  if(CH['c-'+k]){CH['c-'+k].data.datasets=ds;CH['c-'+k].data.labels=lbl2;CH['c-'+k].update();return;}
+  mC('c-'+k,'line',{labels:lbl2,datasets:ds});
 }
 
 // ── PILLS ─────────────────────────────────────────────────────────────────────
@@ -537,17 +620,33 @@ function renderPills(){
     compradores.forEach((n,i)=>{const b=document.createElement('button');b.className='pill'+(act.has(n)?' on':'');b.textContent=S2N(n);b.style.setProperty('--c',PAL[i%PAL.length]);b.onclick=()=>onTog(n);w.appendChild(b);});
   }
   ['alta','media','lenta','sagr'].forEach(k=>{
-    function h(n){aS[k].has(n)?aS[k].delete(n):aS[k].add(n);renderPills();renderSC(k);}
+    function h(n){
+      aS[k].has(n)?aS[k].delete(n):aS[k].add(n);
+      renderPills();renderSC(k);
+      // Update KPIs: if exactly one comprador active, show its data
+      const ac=getActiveComp(k);
+      updateKPIs(ac);
+    }
     bP('pills-'+k,aS[k],h);
   });
 }
 function togSub(k){aS[k]=aS[k].size===G.compradores.length?new Set():new Set(G.compradores);renderPills();renderSC(k);}
+function getActiveComp(k){
+  // If only one comprador is active in this subpanel, return it; else null
+  const s=aS[k];
+  if(s&&s.size===1) return [...s][0];
+  return null;
+}
 
 // ── TABLA RESUMEN ─────────────────────────────────────────────────────────────
 function renderRes(){
   if(!G.compradores)return;
   const{compradores,CDATA,AREA}=G;
-  const sC=document.getElementById('r-comp').value,sCl=document.getElementById('r-clas').value;
+  // Update KPIs based on selected comprador in resumen
+  const selC=document.getElementById('r-comp').value;
+  if(selC&&selC!=='TODOS'&&selC!=='__A__') updateKPIs(selC);
+  else if(selC==='TODOS') updateKPIs(null);
+  const sC=selC,sCl=document.getElementById('r-clas').value;
   const showObj=document.getElementById('r-obj').value==='si';
   document.getElementById('th-obj').style.display=showObj?'':'none';
   const CLA=['TOTAL','SAGRADOS','ALTA ROTACIÓN','MEDIA ROTACIÓN','LENTA ROTACIÓN'];
@@ -714,9 +813,11 @@ function showSub(id,btn){
   btn.classList.add('on');
 }
 
-// ── AUTO-INIT FROM EMBEDDED SNAPSHOT ─────────────────────────────────────────
-window.addEventListener('load',function(){
-  if(window.__SNAP) applyData(window.__SNAP);
+// ── AUTO-INIT: carga automática al abrir ──────────────────────────────────────
+window.addEventListener('load', async function(){
+  if(window.__SNAP){ applyData(window.__SNAP); return; }
+  // Intentar cargar desde servidor automáticamente
+  await loadServer();
 });
 </script>
 </body>
