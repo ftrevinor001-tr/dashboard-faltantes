@@ -39,12 +39,13 @@ def get_semaforo(row):
     if est == "SOBRE INVENTARIO" or mi > (obj + te): return "AZUL"
     return "VERDE"
 
-def build_stats(skus, by_day, primera, ultima, fechas_ult):
-    f1   = by_day.get(primera, 0)
+def build_stats(skus, by_day, primera, ultima, fechas_ult, skus_ant=0, last_ant=None):
+    f1   = by_day.get(last_ant or primera, 0)
     f2   = by_day.get(ultima, 0)
     pico = max((by_day.get(f, 0) for f in fechas_ult), default=0)
     return {
         "skus": skus, "f1": f1, "f2": f2, "pico": pico,
+        "pct_f1":   round(f1   / skus_ant * 100, 2) if skus_ant > 0 else 0,
         "pct_f2":   round(f2   / skus * 100, 2) if skus > 0 else 0,
         "pct_pico": round(pico / skus * 100, 2) if skus > 0 else 0,
     }
@@ -60,9 +61,17 @@ def main():
     excel_path = excels[0]
     print(f"📂 Procesando: {excel_path.name}")
 
-    df1 = pd.read_excel(excel_path, sheet_name=0)
+    # Determinar engine según extensión del archivo
+    ext = excel_path.suffix.lower()
+    engine = 'openpyxl' if ext in ('.xlsx', '.xlsm') else 'xlrd'
     try:
-        df2 = pd.read_excel(excel_path, sheet_name="Detalle")
+        df1 = pd.read_excel(excel_path, sheet_name=0, engine=engine)
+    except Exception:
+        # Intentar con el otro engine como fallback
+        df1 = pd.read_excel(excel_path, sheet_name=0,
+                            engine='xlrd' if engine=='openpyxl' else 'openpyxl')
+    try:
+        df2 = pd.read_excel(excel_path, sheet_name="Detalle", engine=engine)
         print(f"  ✓ Hoja principal: {len(df1):,} filas")
         print(f"  ✓ Hoja Detalle:   {len(df2):,} filas")
     except Exception:
@@ -91,6 +100,8 @@ def main():
     mes_actual  = meses_u[-1]
     mes_ant     = meses_u[-2] if len(meses_u) > 1 else None
     fechas_ult  = [f for f in fechas if f.startswith(mes_actual)]
+    fechas_ant  = [f for f in fechas if mes_ant and f.startswith(mes_ant)]
+    last_ant    = fechas_ant[-1] if fechas_ant else (fechas[0] if fechas else None)
 
     total_by_day = sum_by(faltantes, lambda r: r["fecha"])
     claves_total = sum_by(rows,      lambda r: r["fecha"])
@@ -103,8 +114,10 @@ def main():
         lambda r: r["fecha"]) for cl in CLASIF_ORDER} for c in compradores}
 
     uni_rows = [r for r in rows if r["fecha"] == ultima]
-    def uni_sum(comp=None, cl=None):
-        f = uni_rows
+    uni_ant_rows = [r for r in rows if r["fecha"] == last_ant] if last_ant else []
+
+    def uni_sum(rows_src, comp=None, cl=None):
+        f = rows_src
         if comp: f = [r for r in f if r["comprador"] == comp]
         if cl and cl != "TOTAL": f = [r for r in f if r["clasificacion"] == cl]
         return sum(r["claves"] for r in f)
@@ -114,13 +127,19 @@ def main():
         CDATA[c] = {}
         for cl in CLASIF_ORDER + ["TOTAL"]:
             bd = comp_by_day[c] if cl == "TOTAL" else comp_cl_by_day[c][cl]
-            CDATA[c][cl] = build_stats(uni_sum(comp=c, cl=cl), bd, primera, ultima, fechas_ult)
+            skus_act = uni_sum(uni_rows,     comp=c, cl=cl)
+            skus_ant = uni_sum(uni_ant_rows, comp=c, cl=cl)
+            CDATA[c][cl] = build_stats(skus_act, bd, primera, ultima, fechas_ult,
+                                       skus_ant=skus_ant, last_ant=last_ant)
 
     AREA_DATA = {}
     for cl in CLASIF_ORDER + ["TOTAL"]:
         fl = [r for r in faltantes if cl == "TOTAL" or r["clasificacion"] == cl]
         bd = sum_by(fl, lambda r: r["fecha"])
-        AREA_DATA[cl] = build_stats(uni_sum(cl=cl), bd, primera, ultima, fechas_ult)
+        skus_act = uni_sum(uni_rows,     cl=cl)
+        skus_ant = uni_sum(uni_ant_rows, cl=cl)
+        AREA_DATA[cl] = build_stats(skus_act, bd, primera, ultima, fechas_ult,
+                                    skus_ant=skus_ant, last_ant=last_ant)
 
     # ── Procesar hoja Detalle ─────────────────────────────────────────────────
     detalle_rows = []
