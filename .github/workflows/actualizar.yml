@@ -24,7 +24,24 @@ jobs:
           python-version: '3.11'
 
       - name: 📦 Instalar dependencias
-        run: pip install pandas openpyxl
+        run: pip install pandas openpyxl xlrd
+
+      - name: 🔍 Verificar archivo Excel
+        run: |
+          python -c "
+          from pathlib import Path
+          excels = list(Path('data').glob('*.xlsx')) + list(Path('data').glob('*.xls'))
+          if not excels:
+              print('❌ No se encontró ningún archivo Excel en data/')
+              exit(1)
+          f = excels[0]
+          size = f.stat().st_size
+          print(f'✓ Archivo: {f.name} ({size:,} bytes)')
+          if size < 1000:
+              print('❌ El archivo parece estar vacío o corrupto')
+              exit(1)
+          print('✓ Tamaño válido')
+          "
 
       - name: ⚙️ Procesar Excel → data.json
         run: python scripts/procesar_datos.py
