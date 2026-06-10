@@ -64,11 +64,9 @@ def main():
     df1 = df1[df1['clasificacion'].notna() & (df1['clasificacion'] != '') & (df1['clasificacion'] != '(EN BLANCO)')]
 
     all_fechas  = sorted(df1['fecha'].unique())
-    ultimas     = set(all_fechas[-SEMANAS:])
-    df1         = df1[df1['fecha'].isin(ultimas)]
     fechas      = sorted(df1['fecha'].unique().tolist())
     compradores = sorted(df1['comprador'].unique().tolist())
-    print(f"  📅 Últimas {SEMANAS} fechas: {fechas[0]} → {fechas[-1]}")
+    print(f"  📅 Fechas: {fechas[0]} → {fechas[-1]} ({len(fechas)} días)")
 
     if not fechas:
         print("❌ Sin datos después de filtrar"); sys.exit(1)
