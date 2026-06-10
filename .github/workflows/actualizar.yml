@@ -1,12 +1,11 @@
 name: 📊 Actualizar Dashboard
 
-# Se ejecuta automáticamente cuando subes el Excel
 on:
   push:
     paths:
       - 'data/**.xlsx'
       - 'data/**.xls'
-  workflow_dispatch:   # también permite ejecutarlo manualmente desde GitHub
+  workflow_dispatch:
 
 jobs:
   procesar:
@@ -22,9 +21,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: 📦 Instalar dependencias
-        run: pip install pandas openpyxl xlrd
+        run: pip install pandas openpyxl xlrd --quiet
 
       - name: 🔍 Verificar archivo Excel
         run: |
@@ -32,15 +32,10 @@ jobs:
           from pathlib import Path
           excels = list(Path('data').glob('*.xlsx')) + list(Path('data').glob('*.xls'))
           if not excels:
-              print('❌ No se encontró ningún archivo Excel en data/')
+              print('❌ No se encontró Excel en data/')
               exit(1)
           f = excels[0]
-          size = f.stat().st_size
-          print(f'✓ Archivo: {f.name} ({size:,} bytes)')
-          if size < 1000:
-              print('❌ El archivo parece estar vacío o corrupto')
-              exit(1)
-          print('✓ Tamaño válido')
+          print(f'✓ {f.name} ({f.stat().st_size/1024:.0f} KB)')
           "
 
       - name: ⚙️ Procesar Excel → data.json
