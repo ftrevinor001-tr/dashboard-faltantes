@@ -74,12 +74,17 @@ h1{font-size:20px;font-weight:700;color:#1a2035}
 .sp{background:#7b1fa2}.sg{background:#2e7d32}.sb{background:#1565c0}
 .dt{width:100%;border-collapse:collapse;font-size:11.5px}
 .dt th{padding:7px 8px;font-size:10px;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e2e6ed;font-weight:600;background:#f8f9fd;position:sticky;top:0;z-index:1;white-space:nowrap;cursor:pointer;user-select:none}
+.dt{table-layout:fixed}
+.dt col.c-fecha{width:60px}.dt col.c-sem{width:70px}.dt col.c-clave{width:80px}
+.dt col.c-nombre{width:auto;min-width:200px}.dt col.c-marca{width:100px}
+.dt col.c-num{width:65px}.dt col.c-txt{width:70px}.dt col.c-est{width:90px}
+.dt col.c-bo{width:70px}.dt col.c-comp{width:80px}
 .dt th:hover{background:#edf0f7;color:#1e3a5f}
 .dt th .si{display:inline-block;margin-left:4px;font-size:10px;color:#b0bac9}
 .dt th.sa .si::after{content:'▲';color:#1e3a5f}
 .dt th.sd .si::after{content:'▼';color:#1e3a5f}
 .dt th:not(.sa):not(.sd) .si::after{content:'⇅'}
-.dt td{padding:6px 8px;border-bottom:1px solid #f0f2f8;vertical-align:middle;white-space:nowrap}
+.dt td{padding:6px 8px;border-bottom:1px solid #f0f2f8;vertical-align:middle;white-space:nowrap}.dt td.wrap{white-space:normal}
 .dt tr:hover td{background:#f8f9fd}
 .dtw{overflow:auto;max-height:520px;border:1px solid #e2e6ed;border-radius:8px}
 .fgrp{display:flex;flex-direction:column;gap:4px}
@@ -247,7 +252,16 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
         </div>
       </div>
       <p style="font-size:10px;color:#a0a9be;margin-bottom:8px">Clic en encabezados para ordenar</p>
-      <div class="dtw"><table class="dt"><thead><tr>
+      <div class="dtw"><table class="dt">
+      <colgroup>
+        <col class="c-fecha"><col class="c-sem"><col class="c-clave">
+        <col class="c-nombre"><col class="c-marca">
+        <col class="c-num"><col class="c-num"><col class="c-num">
+        <col class="c-num"><col class="c-txt"><col class="c-bo">
+        <col class="c-est"><col class="c-txt"><col class="c-txt">
+        <col class="c-comp">
+      </colgroup>
+      <thead><tr>
         <th onclick="srtD('fecha')">Fecha<span class="si"></span></th>
         <th onclick="srtD('semaforo')" style="text-align:center">Sem.<span class="si"></span></th>
         <th onclick="srtD('clave')">Clave<span class="si"></span></th>
@@ -262,7 +276,7 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
         <th onclick="srtD('estatus')">Estatus<span class="si"></span></th>
         <th onclick="srtD('reorden')">Pto.Reorden<span class="si"></span></th>
         <th onclick="srtD('clasificacion')">Clasif.<span class="si"></span></th>
-        <th onclick="srtD('grupo')">Grupo<span class="si"></span></th>
+        
         <th onclick="srtD('comprador')">Comprador<span class="si"></span></th>
       </tr></thead><tbody id="det-body"></tbody></table></div>
       <div id="det-pgr" style="padding:8px 0"></div>
@@ -618,7 +632,16 @@ function initDet(){
   pop('f-marca',d.detM||[]);pop('f-clmov',d.detCM||[]);pop('f-grupo',d.detG||[]);
   pop('f-comp',d.detC||[]);pop('f-est',d.detE||[]);pop('f-reord',d.detRd||[]);
   const sf=document.getElementById('f-fecha');
-  if(sf){while(sf.options.length)sf.remove(0);const ao=document.createElement('option');ao.value='';ao.textContent='— Todas —';sf.appendChild(ao);(d.detF||[]).forEach(v=>{const[y,m,dy]=v.split('-');const o=document.createElement('option');o.value=v;o.textContent=`${dy}/${m}/${y}`;sf.appendChild(o);});if(d.detF&&d.detF.length)sf.value=d.detF[d.detF.length-1];}
+  if(sf){
+    while(sf.options.length) sf.remove(0);
+    const ao=document.createElement('option'); ao.value=''; ao.textContent='— Todas —'; sf.appendChild(ao);
+    (d.detF||[]).forEach(v=>{
+      const[y,m,dy]=v.split('-');
+      const o=document.createElement('option'); o.value=v; o.textContent=`${dy}/${m}/${y}`; sf.appendChild(o);
+    });
+    // Default: última fecha disponible
+    if(d.detF && d.detF.length) sf.value = d.detF[d.detF.length-1];
+  }
 }
 function getSel(id){const s=document.getElementById(id);if(!s)return[];if(s.multiple)return[...s.selectedOptions].map(o=>o.value).filter(Boolean);return s.value?[s.value]:[];}
 function applyDetF(excl,inclSearch){
@@ -643,7 +666,7 @@ function renderDetTbl(){
   const tot=rows.length,pgs=Math.ceil(tot/dps);dp=Math.min(dp,pgs-1);
   const pg=rows.slice(dp*dps,(dp+1)*dps);
   cnt.innerHTML=`<span style="background:#e8f0fe;color:#1e3a5f;border-radius:6px;padding:4px 10px;font-weight:700">${tot.toLocaleString()} claves</span>`;
-  tb.innerHTML=pg.map(r=>`<tr><td style="font-size:11px;color:#6b7a99;white-space:nowrap">${r.fecha?r.fecha.split('-').reverse().slice(0,2).join('/'):''}</td><td style="text-align:center"><span class="sem ${SCSS[r.semaforo]}"></span><span style="font-size:10px;color:#6b7a99">${SLBL[r.semaforo]||''}</span></td><td style="font-weight:600;color:#1e3a5f">${r.clave}</td><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis" title="${r.nombre}">${r.nombre}</td><td>${r.marca||'—'}</td><td class="num">${(+r.meses_inv).toFixed(2)}</td><td class="num">${r.obj_meses}</td><td class="num">${r.t_entrega}</td><td class="num">${(+r.existencias).toLocaleString()}</td><td>${r.unidad||'—'}</td><td class="num" style="color:${r.bo>0?'#c0392b':'inherit'};font-weight:${r.bo>0?700:400}">${(+r.bo).toLocaleString()}</td><td><span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:${eBg2(r.estatus)};color:${eC2(r.estatus)}">${r.estatus||'—'}</span></td><td>${r.reorden||'—'}</td><td>${r.clasificacion||'—'}</td><td style="font-size:11px">${r.grupo||'—'}</td><td>${S2N(r.comprador)}</td></tr>`).join('');
+  tb.innerHTML=pg.map(r=>`<tr><td style="font-size:11px;color:#6b7a99;white-space:nowrap">${r.fecha?r.fecha.split('-').reverse().slice(0,2).join('/'):''}</td><td style="text-align:center"><span class="sem ${SCSS[r.semaforo]}"></span><span style="font-size:10px;color:#6b7a99">${SLBL[r.semaforo]||''}</span></td><td style="font-weight:600;color:#1e3a5f;white-space:nowrap">${r.clave}</td><td style="white-space:normal;word-break:break-word;line-height:1.3">${r.nombre}</td><td>${r.marca||'—'}</td><td class="num">${(+r.meses_inv).toFixed(2)}</td><td class="num">${r.obj_meses}</td><td class="num">${r.t_entrega}</td><td class="num">${(+r.existencias).toLocaleString()}</td><td style="font-size:10px;color:#6b7a99">${r.unidad||'—'}</td><td class="num" style="color:${r.bo>0?'#c0392b':'inherit'};font-weight:${r.bo>0?700:400}">${(+r.bo).toLocaleString()}</td><td><span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:${eBg2(r.estatus)};color:${eC2(r.estatus)}">${r.estatus||'—'}</span></td><td style="font-size:10px">${r.reorden||'—'}</td><td style="font-size:10px">${r.clasificacion||'—'}</td><td>${S2N(r.comprador)}</td></tr>`).join('');
   renderPgr(pgs,tot);
 }
 function renderPgr(pgs,tot){const w=document.getElementById('det-pgr');if(!w)return;if(pgs<=1){w.innerHTML='';return;}const s=dp*dps+1,e=Math.min((dp+1)*dps,tot);const bs='border:1.5px solid #c9d4f0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;';let pb='';for(let i=0;i<pgs;i++){if(i===0||i===pgs-1||(i>=dp-3&&i<=dp+3)){pb+=`<button onclick="dp=${i};renderDetTbl()" style="${bs}background:${i===dp?'#1e3a5f':'#fff'};color:${i===dp?'#fff':'#1e3a5f'}">${i+1}</button>`;}else if(i===dp-4||i===dp+4)pb+=`<span style="color:#a0a9be;padding:0 3px">…</span>`;}w.innerHTML=`<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:6px 0"><span style="font-size:11px;color:#6b7a99">Mostrando ${s}–${e} de ${tot.toLocaleString()}</span><div style="display:flex;gap:3px;margin-left:auto;flex-wrap:wrap"><button onclick="dp=0;renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===0?'disabled':''}>«</button><button onclick="dp=Math.max(0,dp-1);renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===0?'disabled':''}>‹</button>${pb}<button onclick="dp=Math.min(${pgs-1},dp+1);renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===pgs-1?'disabled':''}>›</button><button onclick="dp=${pgs-1};renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===pgs-1?'disabled':''}>»</button><select onchange="dp=0;dps=+this.value;renderDetTbl()" style="padding:4px 6px;border:1.5px solid #c9d4f0;border-radius:6px;font-size:11px;font-family:inherit"><option value="50">50/pág</option><option value="100" selected>100/pág</option><option value="200">200/pág</option><option value="500">500/pág</option></select></div></div>`;}
