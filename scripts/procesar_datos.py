@@ -174,7 +174,8 @@ def main():
                 "semaforo":     get_semaforo(e,bo,mi,te,ob),
             }
             detRows.append(row)
-            if e == 'FALTANTE':
+            # faltDetalle solo con el último día (para expandibles en Tabla Resumen)
+            if e == 'FALTANTE' and fecha == last_det:
                 faltDetalle.setdefault(comp,{}).setdefault(row['clmov'],[]).append(row)
 
     def uq(f): return sorted(set(r[f] for r in detRows if r.get(f)))
