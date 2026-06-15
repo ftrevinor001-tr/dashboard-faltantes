@@ -75,10 +75,6 @@ h1{font-size:20px;font-weight:700;color:#1a2035}
 .dt{width:100%;border-collapse:collapse;font-size:11.5px}
 .dt th{padding:7px 8px;font-size:10px;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e2e6ed;font-weight:600;background:#f8f9fd;position:sticky;top:0;z-index:1;white-space:nowrap;cursor:pointer;user-select:none}
 .dt{table-layout:fixed}
-.dt col.c-fecha{width:60px}.dt col.c-sem{width:70px}.dt col.c-clave{width:80px}
-.dt col.c-nombre{width:auto;min-width:200px}.dt col.c-marca{width:100px}
-.dt col.c-num{width:65px}.dt col.c-txt{width:70px}.dt col.c-est{width:90px}
-.dt col.c-bo{width:70px}.dt col.c-comp{width:80px}
 .dt th:hover{background:#edf0f7;color:#1e3a5f}
 .dt th .si{display:inline-block;margin-left:4px;font-size:10px;color:#b0bac9}
 .dt th.sa .si::after{content:'▲';color:#1e3a5f}
@@ -254,12 +250,12 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
       <p style="font-size:10px;color:#a0a9be;margin-bottom:8px">Clic en encabezados para ordenar</p>
       <div class="dtw"><table class="dt">
       <colgroup>
-        <col class="c-fecha"><col class="c-sem"><col class="c-clave">
-        <col class="c-nombre"><col class="c-marca">
-        <col class="c-num"><col class="c-num"><col class="c-num">
-        <col class="c-num"><col class="c-txt"><col class="c-bo">
-        <col class="c-est"><col class="c-txt"><col class="c-txt">
-        <col class="c-comp">
+        <col style="width:55px"><col style="width:65px"><col style="width:75px">
+        <col style="min-width:220px"><col style="width:95px">
+        <col style="width:65px"><col style="width:50px"><col style="width:65px">
+        <col style="width:80px"><col style="width:55px"><col style="width:75px">
+        <col style="width:90px"><col style="width:100px"><col style="width:110px">
+        <col style="width:85px">
       </colgroup>
       <thead><tr>
         <th onclick="srtD('fecha')">Fecha<span class="si"></span></th>
