@@ -141,8 +141,12 @@ def main():
     if df2 is not None:
         df2['fecha'] = pd.to_datetime(df2['Fecha'], errors='coerce').dt.strftime('%Y-%m-%d')
         df2 = df2[~df2['COMPRADOR'].fillna('').str.strip().str.upper().isin(EXCLUIR)]
-        last_det = df2['fecha'].max()
-        df2 = df2[df2['fecha']==last_det]
+        # Guardar últimas 7 fechas disponibles en Detalle
+        fechas_det = sorted(df2['fecha'].dropna().unique())
+        ultimas_7_det = set(fechas_det[-7:])
+        last_det = fechas_det[-1] if fechas_det else None
+        df2 = df2[df2['fecha'].isin(ultimas_7_det)]
+        print(f"  📅 Detalle: {len(ultimas_7_det)} fechas ({min(ultimas_7_det) if ultimas_7_det else ''} → {last_det})")
 
         for _, r in df2.iterrows():
             comp = str(r.get('COMPRADOR','') or '').strip().upper()
