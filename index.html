@@ -77,6 +77,10 @@ h1{font-size:20px;font-weight:700;color:#1a2035}
 .dt{table-layout:fixed}
 .dt th:hover{background:#edf0f7;color:#1e3a5f}
 .dt th .si{display:inline-block;margin-left:4px;font-size:10px;color:#b0bac9}
+.dt th{position:relative}
+.dt th .rsz{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;user-select:none;background:transparent}
+.dt th .rsz:hover{background:#1e3a5f33}
+.dt.resizing{cursor:col-resize}
 .dt th.sa .si::after{content:'▲';color:#1e3a5f}
 .dt th.sd .si::after{content:'▼';color:#1e3a5f}
 .dt th:not(.sa):not(.sd) .si::after{content:'⇅'}
@@ -140,6 +144,7 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
     <button class="tab" onclick="showTab('clasif',this)">📂 Por Clasificación</button>
     <button class="tab" onclick="showTab('resumen',this)">📋 Tabla Resumen</button>
     <button class="tab" onclick="showTab('detalle',this)">🚦 Detalle de Claves</button>
+    <button class="tab" onclick="showTab('comp',this)">🔄 Comparativo Diario</button>
   </div>
 
   <div id="panel-total" class="panel on">
@@ -250,12 +255,12 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
       <p style="font-size:10px;color:#a0a9be;margin-bottom:8px">Clic en encabezados para ordenar</p>
       <div class="dtw"><table class="dt">
       <colgroup>
-        <col style="width:55px"><col style="width:65px"><col style="width:75px">
-        <col style="min-width:220px"><col style="width:95px">
-        <col style="width:65px"><col style="width:50px"><col style="width:65px">
-        <col style="width:80px"><col style="width:55px"><col style="width:75px">
-        <col style="width:90px"><col style="width:100px"><col style="width:110px">
-        <col style="width:85px">
+        <col style="width:55px"><col style="width:65px"><col style="width:60px">
+        <col style="min-width:180px"><col style="width:80px">
+        <col style="width:58px"><col style="width:46px"><col style="width:58px">
+        <col style="width:70px"><col style="width:50px"><col style="width:65px">
+        <col style="width:120px"><col style="width:90px"><col style="width:95px">
+        <col style="width:75px">
       </colgroup>
       <thead><tr>
         <th onclick="srtD('fecha')">Fecha<span class="si"></span></th>
@@ -280,6 +285,70 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
     </div>
   </div>
 
+  <div id="panel-comp" class="panel">
+    <div class="card">
+      <h2>Comparativo entre dos días</h2>
+      <p>Identifica qué claves se volvieron faltantes (nuevas) y cuáles dejaron de serlo (resueltas) entre dos fechas</p>
+      <div style="background:#f5f6fa;border:1px solid #e2e6ed;border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+          <div class="fgrp"><label>📅 Día A (anterior)</label><select id="cmp-a" class="ss" onchange="renderCmp()"></select></div>
+          <div class="fgrp"><label>📅 Día B (posterior)</label><select id="cmp-b" class="ss" onchange="renderCmp()"></select></div>
+          <button class="bsm" onclick="swapCmp()" style="align-self:flex-end">⇄ Invertir</button>
+          <div id="cmp-cnt" style="margin-left:auto;align-self:flex-end;font-size:11px;color:#6b7a99"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div class="fgrp"><label>👤 Comprador</label><select id="cmp-comp" multiple onchange="renderCmp()"></select></div>
+          <div class="fgrp"><label>📂 Clasif.Mov.</label><select id="cmp-clmov" multiple onchange="renderCmp()"></select></div>
+          <div class="fgrp"><label>🏷 Marca</label><select id="cmp-marca" multiple onchange="renderCmp()"></select></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="clearCmp()" style="padding:6px 14px;background:#fff;border:1.5px solid #c9d4f0;border-radius:6px;color:#1e3a5f;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">↺ Limpiar filtros</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div class="kpi" style="--kc:#c0392b;flex:1;min-width:160px"><div class="kpi-lbl">🆕 Nuevas Faltantes</div><div class="kpi-val" id="cmp-nuevas-n">0</div></div>
+        <div class="kpi" style="--kc:#2e7d32;flex:1;min-width:160px"><div class="kpi-lbl">✅ Resueltas</div><div class="kpi-val" id="cmp-resueltas-n">0</div></div>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:340px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <h3 style="font-size:13px;font-weight:700;color:#c0392b">🆕 Nuevas Faltantes</h3>
+            <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('nuevas')">⬇ Excel</button>
+          </div>
+          <div class="dtw"><table class="dt resizable">
+            <colgroup><col style="width:80px"><col style="min-width:220px"><col style="width:95px"><col style="width:90px"><col style="width:105px"></colgroup>
+            <thead><tr>
+              <th onclick="srtCmp('nuevas','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('nuevas','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('nuevas','marca')">Marca<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('nuevas','comprador')">Comprador<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('nuevas','clmov')">Clasif.Mov.<span class="si"></span></th>
+            </tr></thead><tbody id="cmp-nuevas-body"></tbody></table></div>
+          <div id="cmp-nuevas-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves nuevas en este rango</div>
+        </div>
+        <div style="flex:1;min-width:340px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <h3 style="font-size:13px;font-weight:700;color:#2e7d32">✅ Resueltas</h3>
+            <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('resueltas')">⬇ Excel</button>
+          </div>
+          <div class="dtw"><table class="dt resizable">
+            <colgroup><col style="width:80px"><col style="min-width:220px"><col style="width:95px"><col style="width:90px"><col style="width:105px"></colgroup>
+            <thead><tr>
+              <th onclick="srtCmp('resueltas','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resueltas','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resueltas','marca')">Marca<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resueltas','comprador')">Comprador<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resueltas','clmov')">Clasif.Mov.<span class="si"></span></th>
+            </tr></thead><tbody id="cmp-resueltas-body"></tbody></table></div>
+          <div id="cmp-resueltas-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves resueltas en este rango</div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <button onclick="expCmpExcelAmbas()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar ambas a Excel (2 hojas)</button>
+      </div>
+    </div>
+  </div>
+
   <div class="footer" id="ftr"></div>
 </div>
 
@@ -298,7 +367,7 @@ const SORD={ROJO:0,AMARILLO:1,NARANJA:2,MORADO:3,VERDE:4,AZUL:5};
 const S2N=n=>n==='MYRIAM VIDA CHRISTELL'?'MYRIAM':n==='FRANCISCO JAVIER'?'FCO.J':n.split(' ')[0];
 const MN=['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#4a5568',font:{size:11},boxWidth:12,padding:12}},tooltip:{mode:'index',intersect:false,backgroundColor:'#fff',titleColor:'#1a2035',bodyColor:'#4a5568',borderColor:'#e2e6ed',borderWidth:1,padding:9}},scales:{x:{ticks:{color:'#6b7a99',font:{size:10}},grid:{color:'#edf0f7'}},y:{ticks:{color:'#6b7a99'},grid:{color:'#edf0f7'}}}};
+const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#4a5568',font:{size:11},boxWidth:12,padding:12}},tooltip:{mode:'index',intersect:false,backgroundColor:'#fff',titleColor:'#1a2035',bodyColor:'#4a5568',borderColor:'#e2e6ed',borderWidth:1,padding:9}},scales:{x:{ticks:{color:'#6b7a99',font:{size:10}},grid:{color:'#edf0f7'}},y:{ticks:{color:'#6b7a99',precision:0,callback:v=>Number.isInteger(v)?v:null},grid:{color:'#edf0f7'},beginAtZero:true}}};
 const DFT=[
   {id:'f-sem',fv:r=>r.semaforo,multi:true},
   {id:'f-marca',fv:r=>r.marca,multi:true},
@@ -340,19 +409,29 @@ function resetDates(){
 }
 
 // ── KPI UPDATE ────────────────────────────────────────────────────────────────
-function updateKPIs(comp){
+function updateKPIs(comp, cl){
   if(!G||!G.totalByDay) return;
   const{totalByDay,clasByDay,compByDay,compClByDay}=G;
   const ff=ffDates.length?ffDates:(G.fechas||[]);
   const ufF=ff[ff.length-1]||G.uf||'';
   const pfF=ff[0]||(G.pf||G.primeraFecha||'');
   let tH,tI,pT,cH;
-  if(!comp){
+  if(!comp && !cl){
     tH=totalByDay[ufF]||0; tI=totalByDay[pfF]||0;
     pT=Math.max(0,...ff.map(f=>totalByDay[f]||0));
     cH=G.clavesTotal?.[ufF]||G.clavesHoy||0;
-  } else {
+  } else if(comp && !cl){
     const bd=compByDay[comp]||{};
+    tH=bd[ufF]||0; tI=bd[pfF]||0;
+    pT=Math.max(0,...ff.map(f=>bd[f]||0));
+    cH=null;
+  } else if(!comp && cl){
+    const bd=clasByDay[cl]||{};
+    tH=bd[ufF]||0; tI=bd[pfF]||0;
+    pT=Math.max(0,...ff.map(f=>bd[f]||0));
+    cH=null;
+  } else {
+    const bd=(compClByDay[comp]||{})[cl]||{};
     tH=bd[ufF]||0; tI=bd[pfF]||0;
     pT=Math.max(0,...ff.map(f=>bd[f]||0));
     cH=null;
@@ -362,14 +441,14 @@ function updateKPIs(comp){
   const pfParts=pfF?pfF.split('-'):['','',''];
   const[pfy,pfm,pfd]=pfParts;
   const pfL=pfd&&pfm?`${pfd}/${MN[+pfm]}`:'inicio';
-  const tg=(v,l,tip)=>`<span class="ktag ${v<0?'kdn':'kup'}" title="${tip||''}" style="cursor:help">${v<0?'▼ menos':'▲ más'} ${Math.abs(v)}% ${l}</span>`;
+  const tg=(v,l,tip)=>`<span class="ktag ${v<0?'kdn':'kup'}" title="${tip||''}" style="cursor:help">${v<0?'▼':'▲'} ${Math.abs(v)}% ${l}</span>`;
   const ufParts=ufF?ufF.split('-'):['','',''];
   const[,um,ud]=ufParts;
   if(ud&&um) document.getElementById('bdg').textContent=`${ud} ${MN[+um]}`;
   function clV(cl){return !comp?(clasByDay[cl]?.[ufF]||0):(compClByDay[comp]?.[cl]?.[ufF]||0);}
-  const compLbl=comp?` · ${S2N(comp)}`:'';
+  const compLbl=(comp?` · ${S2N(comp)}`:'')+(cl?` · ${CLL[cl]||cl}`:'');
   document.getElementById('kpis').innerHTML=`
-    <div class="kpi" style="--kc:#c0392b"><div class="kpi-lbl">📦 Faltantes hoy${compLbl}</div><div class="kpi-val">${tH}</div><div class="kpi-foot">${tg(pI,`vs ${pfL}`,`Primer día del rango: ${pfF}\\n▼ menos faltantes (mejora)\\n▲ más faltantes (empeora)`)}${tg(pP,'vs pico',`Día con más faltantes en el rango\\n▼ menos faltantes (mejora)`)}</div></div>
+    <div class="kpi" style="--kc:#c0392b"><div class="kpi-lbl">📦 Faltantes hoy${compLbl}</div><div class="kpi-val">${tH}</div><div class="kpi-foot">${tg(pI,`vs ${pfL}`,`${pfF}: ${tI} faltantes -> hoy: ${tH} faltantes\\n▼ disminuyeron (mejora)  ▲ aumentaron (empeora)`)}${tg(pP,'vs pico',`Pico del rango: ${pT} faltantes -> hoy: ${tH}\\n▼ disminuyeron (mejora)`)}</div></div>
     <div class="kpi" style="--kc:#c0582a"><div class="kpi-lbl">🔴 Alta Rotación</div><div class="kpi-val">${clV('ALTA ROTACIÓN')}</div></div>
     <div class="kpi" style="--kc:#b8952a"><div class="kpi-lbl">🟡 Media Rotación</div><div class="kpi-val">${clV('MEDIA ROTACIÓN')}</div></div>
     <div class="kpi" style="--kc:#3a9688"><div class="kpi-lbl">🔵 Lenta Rotación</div><div class="kpi-val">${clV('LENTA ROTACIÓN')}</div></div>
@@ -385,6 +464,18 @@ async function loadServer(){
   const fb=document.getElementById('load-fallback');
   const ico=document.getElementById('load-ico');
   if(errEl) errEl.style.display='none';
+
+  // Si se abre el archivo directamente (file://) o sin conexión, no hay servidor: ir directo al Excel manual
+  if(location.protocol==='file:'){
+    if(ico){ico.classList.remove('spin');ico.textContent='📂';}
+    if(title) title.textContent='Modo local — sin servidor';
+    if(msg) msg.textContent='Estás abriendo el archivo directamente. Carga tu Excel para continuar.';
+    if(fb) fb.style.display='block';
+    const prog=document.querySelector('#upload-screen .pb');
+    if(prog) prog.style.display='none';
+    return;
+  }
+
   const isOpen=document.getElementById('dashboard').style.display!=='none';
   if(isOpen){
     const btns=document.querySelectorAll('.hbtn');
@@ -410,7 +501,7 @@ async function loadServer(){
 }
 async function doFetch(msgEl){
   const ctrl=new AbortController();
-  const t=setTimeout(()=>ctrl.abort(),30000);
+  const t=setTimeout(()=>ctrl.abort(),8000);
   try{
     if(msgEl){msgEl.textContent='📡 Conectando con GitHub...';await wait(700);}
     const fetchP=fetch(DATA_URL+'?t='+Date.now(),{signal:ctrl.signal});
@@ -534,7 +625,7 @@ function render(){
   // Init date filter (sets ffDates)
   resetDates();
   // Render all sections
-  renderCharts();renderPills();renderRes();initDet();renderDet();
+  renderCharts();renderPills();renderRes();initDet();renderDet();initCmp();renderCmp();setTimeout(initColResize,100);
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────────
@@ -544,9 +635,9 @@ function renderCharts(){
   const{fechas,compradores,totalByDay,clasByDay,clavesTotal,compByDay,compClByDay,uf}=G;
   const ff=ffDates.length?ffDates:fechas;
   const lbl=ff.map(fF);
-  mC('c-total','line',{labels:lbl,datasets:[{label:'Total Faltantes',data:ff.map(f=>totalByDay[f]||0),borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.08)',fill:true,tension:.3,pointRadius:3,borderWidth:2}]});
+  mC('c-total','line',{labels:lbl,datasets:[{label:'Total Faltantes',data:ff.map(f=>totalByDay[f]||0),borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.08)',fill:true,tension:.35,pointRadius:3,borderWidth:2}]},{...BASE,scales:{...BASE.scales,y:{...BASE.scales.y,beginAtZero:false}}});
   mC('c-stack','bar',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:ff.map(f=>clasByDay[cl][f]||0),backgroundColor:CLC[cl]}))},{...BASE,scales:{x:{...BASE.scales.x,stacked:true},y:{...BASE.scales.y,stacked:true}}});
-  mC('c-lines','line',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:ff.map(f=>clasByDay[cl][f]||0),borderColor:CLC[cl],backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,borderWidth:2}))});
+  mC('c-lines','line',{labels:lbl,datasets:CLS.map(cl=>({label:CLL[cl],data:ff.map(f=>clasByDay[cl][f]||0),borderColor:CLC[cl],backgroundColor:'transparent',fill:false,tension:.35,pointRadius:3,borderWidth:2}))});
   rkC('c-rk-alta',compradores.map((c,i)=>({n:S2N(c),v:compClByDay[c]['ALTA ROTACIÓN'][uf]||0,c:PAL[i%PAL.length]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v));
   rkC('c-rk-media',compradores.map((c,i)=>({n:S2N(c),v:compClByDay[c]['MEDIA ROTACIÓN'][uf]||0,c:PAL[i%PAL.length]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v));
   rkC('c-rk-lenta',compradores.map((c,i)=>({n:S2N(c),v:compClByDay[c]['LENTA ROTACIÓN'][uf]||0,c:PAL[i%PAL.length]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v));
@@ -558,7 +649,7 @@ function renderSC(k){
   const{fechas,compradores,compClByDay}=G,cl=SCL[k];
   const ff=ffDates.length?ffDates:fechas;
   const lbl=ff.map(fF);
-  const ds=compradores.filter(c=>aS[k].has(c)).map(c=>({label:c,data:ff.map(f=>compClByDay[c][cl][f]||0),borderColor:PAL[compradores.indexOf(c)%PAL.length],backgroundColor:PAL[compradores.indexOf(c)%PAL.length],tension:.3,pointRadius:2,fill:false,borderWidth:2}));
+  const ds=compradores.filter(c=>aS[k].has(c)).map(c=>({label:c,data:ff.map(f=>compClByDay[c][cl][f]||0),borderColor:PAL[compradores.indexOf(c)%PAL.length],backgroundColor:PAL[compradores.indexOf(c)%PAL.length],tension:.35,pointRadius:2,fill:false,borderWidth:2}));
   if(CH['c-'+k]){CH['c-'+k].data.datasets=ds;CH['c-'+k].data.labels=lbl;CH['c-'+k].update();return;}
   mC('c-'+k,'line',{labels:lbl,datasets:ds});
 }
@@ -568,11 +659,11 @@ function renderPills(){
   const{compradores}=G;
   function bP(id,act,onTog){const w=document.getElementById(id);if(!w)return;w.innerHTML='';compradores.forEach((n,i)=>{const b=document.createElement('button');b.className='pill'+(act.has(n)?' on':'');b.textContent=S2N(n);b.style.setProperty('--c',PAL[i%PAL.length]);b.onclick=()=>onTog(n);w.appendChild(b);});}
   ['alta','media','lenta','sagr'].forEach(k=>{
-    function h(n){aS[k].has(n)?aS[k].delete(n):aS[k].add(n);renderPills();renderSC(k);const ac=aS[k].size===1?[...aS[k]][0]:null;updateKPIs(ac);}
+    function h(n){aS[k].has(n)?aS[k].delete(n):aS[k].add(n);renderPills();renderSC(k);const ac=aS[k].size===1?[...aS[k]][0]:null;updateKPIs(ac, ac?SCL[k]:null);}
     bP('pills-'+k,aS[k],h);
   });
 }
-function togSub(k){aS[k]=aS[k].size===G.compradores.length?new Set():new Set(G.compradores);renderPills();renderSC(k);updateKPIs(null);}
+function togSub(k){aS[k]=aS[k].size===G.compradores.length?new Set():new Set(G.compradores);renderPills();renderSC(k);updateKPIs(null,null);}
 
 // ── TABLA RESUMEN ─────────────────────────────────────────────────────────────
 function renderRes(){
@@ -581,8 +672,9 @@ function renderRes(){
   const sC=document.getElementById('r-comp').value,sCl=document.getElementById('r-clas').value;
   const showObj=document.getElementById('r-obj').value==='si';
   document.getElementById('th-obj').style.display=showObj?'':'none';
-  if(sC&&sC!=='TODOS'&&sC!=='__A__') updateKPIs(sC);
-  else updateKPIs(null);
+  const sClForKpi = (sCl && sCl!=='TODAS' && sCl!=='TOTAL') ? sCl : null;
+  if(sC&&sC!=='TODOS'&&sC!=='__A__') updateKPIs(sC, sClForKpi);
+  else updateKPIs(null, sClForKpi);
   const CLA=['TOTAL','SAGRADOS','ALTA ROTACIÓN','MEDIA ROTACIÓN','LENTA ROTACIÓN'];
   const comps=sC==='TODOS'?compradores:sC==='__A__'?[]:[sC];
   const cls=sCl==='TODAS'?CLA:[sCl];
@@ -653,7 +745,7 @@ function srtD(col){dSort.d=dSort.c===col?(dSort.d==='asc'?'desc':'asc'):'asc';dS
 function sortedDet(rows){const{c,d}=dSort,num=['meses_inv','obj_meses','t_entrega','existencias','bo'];return[...rows].sort((a,b)=>{let va=a[c],vb=b[c];if(c==='semaforo'){va=SORD[va]??9;vb=SORD[vb]??9;}else if(num.includes(c)){va=+va||0;vb=+vb||0;}else{va=String(va||'').toLowerCase();vb=String(vb||'').toLowerCase();}return(va<vb?-1:va>vb?1:0)*(d==='asc'?1:-1);});}
 const eBg2=e=>({FALTANTE:'#fdecea',RIESGO:'#fff8e1','SOBRE INVENTARIO':'#e8f5e9',OPTIMO:'#e3f2fd'}[e]||'#f5f6fa');
 const eC2=e=>({FALTANTE:'#c0392b',RIESGO:'#f57c00','SOBRE INVENTARIO':'#2e7d32',OPTIMO:'#1565c0'}[e]||'#6b7a99');
-function renderDet(){if(!(G.detR))return;updDrops();dRows=applyDetF(null,true);dp=0;renderDetTbl();}
+function renderDet(){if(!(G.detR))return;updDrops();dRows=applyDetF(null,true);dp=0;renderDetTbl();setTimeout(initColResize,50);}
 function renderDetTbl(){
   const rows=sortedDet(dRows);
   const tb=document.getElementById('det-body'),em=document.getElementById('det-empty'),cnt=document.getElementById('d-cnt');
@@ -662,11 +754,264 @@ function renderDetTbl(){
   const tot=rows.length,pgs=Math.ceil(tot/dps);dp=Math.min(dp,pgs-1);
   const pg=rows.slice(dp*dps,(dp+1)*dps);
   cnt.innerHTML=`<span style="background:#e8f0fe;color:#1e3a5f;border-radius:6px;padding:4px 10px;font-weight:700">${tot.toLocaleString()} claves</span>`;
-  tb.innerHTML=pg.map(r=>`<tr><td style="font-size:11px;color:#6b7a99;white-space:nowrap">${r.fecha?r.fecha.split('-').reverse().slice(0,2).join('/'):''}</td><td style="text-align:center"><span class="sem ${SCSS[r.semaforo]}"></span><span style="font-size:10px;color:#6b7a99">${SLBL[r.semaforo]||''}</span></td><td style="font-weight:600;color:#1e3a5f;white-space:nowrap">${r.clave}</td><td style="white-space:normal;word-break:break-word;line-height:1.3">${r.nombre}</td><td>${r.marca||'—'}</td><td class="num">${(+r.meses_inv).toFixed(2)}</td><td class="num">${r.obj_meses}</td><td class="num">${r.t_entrega}</td><td class="num">${(+r.existencias).toLocaleString()}</td><td style="font-size:10px;color:#6b7a99">${r.unidad||'—'}</td><td class="num" style="color:${r.bo>0?'#c0392b':'inherit'};font-weight:${r.bo>0?700:400}">${(+r.bo).toLocaleString()}</td><td><span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:${eBg2(r.estatus)};color:${eC2(r.estatus)}">${r.estatus||'—'}</span></td><td style="font-size:10px">${r.reorden||'—'}</td><td style="font-size:10px">${r.clasificacion||'—'}</td><td>${S2N(r.comprador)}</td></tr>`).join('');
+  tb.innerHTML=pg.map(r=>`<tr><td style="font-size:11px;color:#6b7a99;white-space:nowrap">${r.fecha?r.fecha.split('-').reverse().slice(0,2).join('/'):''}</td><td style="text-align:center"><span class="sem ${SCSS[r.semaforo]}"></span><span style="font-size:10px;color:#6b7a99">${SLBL[r.semaforo]||''}</span></td><td style="font-weight:600;color:#1e3a5f;white-space:nowrap">${r.clave}</td><td style="white-space:normal;word-break:break-word;line-height:1.3">${r.nombre}</td><td>${r.marca||'—'}</td><td class="num">${(+r.meses_inv).toFixed(2)}</td><td class="num">${r.obj_meses}</td><td class="num">${r.t_entrega}</td><td class="num">${(+r.existencias).toLocaleString()}</td><td style="font-size:10px;color:#6b7a99">${r.unidad||'—'}</td><td class="num" style="color:${r.bo>0?'#c0392b':'inherit'};font-weight:${r.bo>0?700:400}">${(+r.bo).toLocaleString()}</td><td style="white-space:nowrap;overflow:visible"><span style="font-size:9.5px;padding:2px 5px;border-radius:4px;font-weight:600;white-space:nowrap;display:inline-block;background:${eBg2(r.estatus)};color:${eC2(r.estatus)}">${r.estatus||'—'}</span></td><td style="font-size:10px">${r.reorden||'—'}</td><td style="font-size:10px">${r.clasificacion||'—'}</td><td>${S2N(r.comprador)}</td></tr>`).join('');
   renderPgr(pgs,tot);
 }
 function renderPgr(pgs,tot){const w=document.getElementById('det-pgr');if(!w)return;if(pgs<=1){w.innerHTML='';return;}const s=dp*dps+1,e=Math.min((dp+1)*dps,tot);const bs='border:1.5px solid #c9d4f0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;';let pb='';for(let i=0;i<pgs;i++){if(i===0||i===pgs-1||(i>=dp-3&&i<=dp+3)){pb+=`<button onclick="dp=${i};renderDetTbl()" style="${bs}background:${i===dp?'#1e3a5f':'#fff'};color:${i===dp?'#fff':'#1e3a5f'}">${i+1}</button>`;}else if(i===dp-4||i===dp+4)pb+=`<span style="color:#a0a9be;padding:0 3px">…</span>`;}w.innerHTML=`<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:6px 0"><span style="font-size:11px;color:#6b7a99">Mostrando ${s}–${e} de ${tot.toLocaleString()}</span><div style="display:flex;gap:3px;margin-left:auto;flex-wrap:wrap"><button onclick="dp=0;renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===0?'disabled':''}>«</button><button onclick="dp=Math.max(0,dp-1);renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===0?'disabled':''}>‹</button>${pb}<button onclick="dp=Math.min(${pgs-1},dp+1);renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===pgs-1?'disabled':''}>›</button><button onclick="dp=${pgs-1};renderDetTbl()" style="${bs}background:#fff;color:#1e3a5f" ${dp===pgs-1?'disabled':''}>»</button><select onchange="dp=0;dps=+this.value;renderDetTbl()" style="padding:4px 6px;border:1.5px solid #c9d4f0;border-radius:6px;font-size:11px;font-family:inherit"><option value="50">50/pág</option><option value="100" selected>100/pág</option><option value="200">200/pág</option><option value="500">500/pág</option></select></div></div>`;}
 function expDet(){if(!dRows||!dRows.length){alert('Sin datos para exportar.');return;}if(typeof XLSX==='undefined'){alert('Librería XLSX no disponible.');return;}const rows=sortedDet(dRows).map(r=>({'Semáforo':SLBL[r.semaforo],'Clave':r.clave,'Nombre':r.nombre,'Marca':r.marca,'Meses Inv':+parseFloat(r.meses_inv).toFixed(2),'Obj.Meses':+r.obj_meses,'T.Entrega':+r.t_entrega,'Existencias':+r.existencias,'Unidad':r.unidad,'Back Order':+r.bo,'Estatus':r.estatus,'Pto.Reorden':r.reorden,'Clasificación':r.clasificacion,'Grupo':r.grupo,'Comprador':r.comprador}));const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,'Detalle');const[,m,dy]=(G.uf||'').split('-');XLSX.writeFile(wb,`Detalle_${dy}_${MN[+m]||''}.xlsx`);}
+
+// ── COMPARATIVO DIARIO ────────────────────────────────────────────────────────
+function initCmp(){
+  // Solo establece fechas por defecto (últimos 2 días disponibles).
+  // Las opciones reales de cmp-a/cmp-b/cmp-comp/cmp-clmov/cmp-marca
+  // las calcula updCmpDropdowns() (llamado desde renderCmp), respetando cascada.
+  const fechas = G.detF || [];
+  ['cmp-comp','cmp-clmov','cmp-marca'].forEach(id=>{
+    const s=document.getElementById(id); if(s) [...s.options].forEach(o=>o.selected=false);
+  });
+  const sa=document.getElementById('cmp-a'), sb=document.getElementById('cmp-b');
+  if(sa && sb && fechas.length){
+    // Poblar temporalmente para poder asignar value antes de la cascada real
+    const pop=(s,vals)=>{ while(s.options.length) s.remove(0); vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v.split('-').reverse().join('/');s.appendChild(o);}); };
+    pop(sa, fechas); pop(sb, fechas);
+    if(fechas.length>=2){ sa.value=fechas[fechas.length-2]; sb.value=fechas[fechas.length-1]; }
+    else { sa.value=fechas[0]; sb.value=fechas[0]; }
+  }
+}
+function swapCmp(){
+  const a=document.getElementById('cmp-a'), b=document.getElementById('cmp-b');
+  const tmp=a.value; a.value=b.value; b.value=tmp;
+  renderCmp();
+}
+function clearCmp(){
+  ['cmp-comp','cmp-clmov','cmp-marca'].forEach(id=>{
+    const s=document.getElementById(id); if(s) [...s.options].forEach(o=>o.selected=false);
+  });
+  renderCmp();
+}
+function getCmpSel(id){
+  const s=document.getElementById(id); if(!s) return [];
+  return [...s.selectedOptions].map(o=>o.value).filter(Boolean);
+}
+let cmpData={nuevas:[],resueltas:[]};
+let cmpSort={nuevas:{col:null,dir:'asc'},resueltas:{col:null,dir:'asc'}};
+
+// Calcula nuevas+resueltas para un par de fechas dado, SIN aplicar filtros comp/clmov/marca.
+// Se usa para saber qué compradores/clasif/marca tuvieron algún CAMBIO real.
+function calcCambios(detR, fechaA, fechaB){
+  const rowsA = detR.filter(r=>r.fecha===fechaA && r.estatus==='FALTANTE');
+  const rowsB = detR.filter(r=>r.fecha===fechaB && r.estatus==='FALTANTE');
+  const clavesA = new Set(rowsA.map(r=>r.clave));
+  const clavesB = new Set(rowsB.map(r=>r.clave));
+  const nuevas    = rowsB.filter(r=>!clavesA.has(r.clave));
+  const resueltas = rowsA.filter(r=>!clavesB.has(r.clave));
+  return { nuevas, resueltas, cambios: [...nuevas, ...resueltas] };
+}
+
+function updCmpDropdowns(){
+  const detR = G.detR || [];
+  const compSel  = getCmpSel('cmp-comp');
+  const clmovSel = getCmpSel('cmp-clmov');
+  const marcaSel = getCmpSel('cmp-marca');
+
+  function byNonDateFilters(rows, excludeId){
+    let r = rows;
+    if(excludeId!=='cmp-comp'  && compSel.length)  r = r.filter(x=>compSel.includes(x.comprador));
+    if(excludeId!=='cmp-clmov' && clmovSel.length) r = r.filter(x=>clmovSel.includes(x.clmov));
+    if(excludeId!=='cmp-marca' && marcaSel.length) r = r.filter(x=>marcaSel.includes(x.marca));
+    return r;
+  }
+
+  // ── Fechas disponibles para A y B: solo fechas donde, comparadas con ALGUNA otra fecha
+  // disponible, exista al menos un cambio (nueva o resuelta) que cumpla los filtros activos ──
+  const todasFechas = [...new Set(detR.map(r=>r.fecha))].sort();
+  function fechaTieneCambioCon(fecha, otrasFechas){
+    return otrasFechas.some(otra=>{
+      if(otra===fecha) return false;
+      const {cambios} = calcCambios(detR, fecha<otra?fecha:otra, fecha<otra?otra:fecha);
+      return byNonDateFilters(cambios, null).length > 0;
+    });
+  }
+  // Una fecha es válida para A o B si tiene al menos un cambio respecto a cualquier otra fecha
+  const fechasConCambios = todasFechas.filter(f => fechaTieneCambioCon(f, todasFechas));
+  const fechasDisponibles = fechasConCambios.length ? fechasConCambios : todasFechas;
+
+  function popDateSelect(id){
+    const s=document.getElementById(id); if(!s) return;
+    const cur = s.value;
+    while(s.options.length) s.remove(0);
+    fechasDisponibles.forEach(v=>{
+      const o=document.createElement('option'); o.value=v; o.textContent=v.split('-').reverse().join('/');
+      s.appendChild(o);
+    });
+    if(fechasDisponibles.includes(cur)) s.value = cur;
+    else if(fechasDisponibles.length) s.value = fechasDisponibles[fechasDisponibles.length-1];
+  }
+  popDateSelect('cmp-a');
+  popDateSelect('cmp-b');
+
+  const fechaA = document.getElementById('cmp-a')?.value;
+  const fechaB = document.getElementById('cmp-b')?.value;
+
+  // ── Comprador/Clasif/Marca: solo los que tienen un CAMBIO real entre fechaA y fechaB ──
+  const { cambios } = calcCambios(detR, fechaA, fechaB);
+
+  function avail(excludeId){
+    return byNonDateFilters(cambios, excludeId);
+  }
+  function popMultiCascade(id, field, excludeId){
+    const s=document.getElementById(id); if(!s) return;
+    const cur=new Set([...s.selectedOptions].map(o=>o.value));
+    const vals=[...new Set(avail(excludeId).map(r=>r[field]))].filter(Boolean).sort();
+    while(s.options.length) s.remove(0);
+    vals.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; o.selected=cur.has(v); s.appendChild(o); });
+  }
+  popMultiCascade('cmp-comp',  'comprador', 'cmp-comp');
+  popMultiCascade('cmp-clmov', 'clmov',     'cmp-clmov');
+  popMultiCascade('cmp-marca', 'marca',     'cmp-marca');
+}
+
+function renderCmp(){
+  const detR = G.detR || [];
+  if(!document.getElementById('cmp-a')?.value && !document.getElementById('cmp-b')?.value) return;
+
+  updCmpDropdowns(); // puede reescribir cmp-a/cmp-b/cmp-comp/cmp-clmov/cmp-marca
+
+  const fechaA = document.getElementById('cmp-a')?.value;
+  const fechaB = document.getElementById('cmp-b')?.value;
+  if(!fechaA || !fechaB) return;
+
+  const compSel  = getCmpSel('cmp-comp');
+  const clmovSel = getCmpSel('cmp-clmov');
+  const marcaSel = getCmpSel('cmp-marca');
+
+  function applyFiltros(rows){
+    let r = rows;
+    if(compSel.length)  r = r.filter(x=>compSel.includes(x.comprador));
+    if(clmovSel.length) r = r.filter(x=>clmovSel.includes(x.clmov));
+    if(marcaSel.length) r = r.filter(x=>marcaSel.includes(x.marca));
+    return r;
+  }
+
+  const { nuevas, resueltas } = calcCambios(detR, fechaA, fechaB);
+  cmpData.nuevas    = applyFiltros(nuevas);
+  cmpData.resueltas = applyFiltros(resueltas);
+
+  document.getElementById('cmp-nuevas-n').textContent    = cmpData.nuevas.length;
+  document.getElementById('cmp-resueltas-n').textContent = cmpData.resueltas.length;
+  const fLbl = f => f ? f.split('-').reverse().join('/') : '';
+  document.getElementById('cmp-cnt').innerHTML = `<span style="background:#e8f0fe;color:#1e3a5f;border-radius:6px;padding:4px 10px;font-weight:700">${fLbl(fechaA)} → ${fLbl(fechaB)}</span>`;
+
+  renderCmpTbl('nuevas');
+  renderCmpTbl('resueltas');
+  setTimeout(initColResize,50);
+}
+
+function srtCmp(which,col){
+  const s=cmpSort[which];
+  s.dir = (s.col===col && s.dir==='asc') ? 'desc' : 'asc';
+  s.col = col;
+  // Actualizar indicadores visuales en encabezados de esa tabla
+  const tableSel = which==='nuevas' ? '#cmpsub-nuevas .dt th' : '#cmpsub-resueltas .dt th';
+  document.querySelectorAll(tableSel).forEach(th=>{
+    th.classList.remove('sa','sd');
+    if(th.getAttribute('onclick')===`srtCmp('${which}','${col}')`) th.classList.add(s.dir==='asc'?'sa':'sd');
+  });
+  renderCmpTbl(which);
+}
+
+function renderCmpTbl(which){
+  const rows = [...cmpData[which]];
+  const {col,dir} = cmpSort[which];
+  if(col){
+    rows.sort((a,b)=>{
+      const va=String(a[col]||'').toLowerCase(), vb=String(b[col]||'').toLowerCase();
+      return (va<vb?-1:va>vb?1:0)*(dir==='asc'?1:-1);
+    });
+  }
+  const bodyId  = which==='nuevas' ? 'cmp-nuevas-body'  : 'cmp-resueltas-body';
+  const emptyId = which==='nuevas' ? 'cmp-nuevas-empty' : 'cmp-resueltas-empty';
+  const tb=document.getElementById(bodyId), em=document.getElementById(emptyId);
+  if(!rows.length){ tb.innerHTML=''; em.style.display='block'; return; }
+  em.style.display='none';
+  tb.innerHTML = rows.map(r=>`<tr>
+    <td style="font-weight:600;color:#1e3a5f">${r.clave}</td>
+    <td style="white-space:normal">${r.nombre}</td>
+    <td>${r.marca||'—'}</td>
+    <td>${S2N(r.comprador)}</td>
+    <td style="font-size:11px">${r.clmov||'—'}</td>
+  </tr>`).join('');
+}
+function buildCmpSheetRows(which){
+  const rows = [...cmpData[which]];
+  const {col,dir} = cmpSort[which];
+  if(col){
+    rows.sort((a,b)=>{
+      const va=String(a[col]||'').toLowerCase(), vb=String(b[col]||'').toLowerCase();
+      return (va<vb?-1:va>vb?1:0)*(dir==='asc'?1:-1);
+    });
+  }
+  return rows.map(r=>({
+    'Clave':r.clave, 'Nombre':r.nombre, 'Marca':r.marca||'',
+    'Comprador':r.comprador, 'Clasif.Mov.':r.clmov||''
+  }));
+}
+function expCmpExcel(which){
+  if(typeof XLSX==='undefined'){ alert('Librería XLSX no disponible.'); return; }
+  const rows = buildCmpSheetRows(which);
+  if(!rows.length){ alert('Sin datos para exportar.'); return; }
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:12},{wch:40},{wch:18},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb, ws, which==='nuevas' ? 'Nuevas Faltantes' : 'Resueltas');
+  const fechaA=document.getElementById('cmp-a')?.value||'', fechaB=document.getElementById('cmp-b')?.value||'';
+  XLSX.writeFile(wb, `Comparativo_${which}_${fechaA}_a_${fechaB}.xlsx`);
+}
+function expCmpExcelAmbas(){
+  if(typeof XLSX==='undefined'){ alert('Librería XLSX no disponible.'); return; }
+  const rowsN = buildCmpSheetRows('nuevas');
+  const rowsR = buildCmpSheetRows('resueltas');
+  if(!rowsN.length && !rowsR.length){ alert('Sin datos para exportar.'); return; }
+  const wb=XLSX.utils.book_new();
+  const wsN=XLSX.utils.json_to_sheet(rowsN.length?rowsN:[{Clave:'',Nombre:'Sin datos',Marca:'',Comprador:'',Clmov:''}]);
+  const wsR=XLSX.utils.json_to_sheet(rowsR.length?rowsR:[{Clave:'',Nombre:'Sin datos',Marca:'',Comprador:'',Clmov:''}]);
+  wsN['!cols']=wsR['!cols']=[{wch:12},{wch:40},{wch:18},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb, wsN, 'Nuevas Faltantes');
+  XLSX.utils.book_append_sheet(wb, wsR, 'Resueltas');
+  const fechaA=document.getElementById('cmp-a')?.value||'', fechaB=document.getElementById('cmp-b')?.value||'';
+  XLSX.writeFile(wb, `Comparativo_${fechaA}_a_${fechaB}.xlsx`);
+}
+
+// ── REDIMENSIONAR COLUMNAS (drag en encabezados) ──────────────────────────────
+function initColResize(){
+  document.querySelectorAll('.dt').forEach(table=>{
+    const ths = table.querySelectorAll('thead th');
+    const cols = table.querySelectorAll('colgroup col');
+    ths.forEach((th,i)=>{
+      const handle = th.querySelector('.rsz');
+      if(!handle || !cols[i]) return;
+      if(handle.dataset.bound) return; // evitar doble bind
+      handle.dataset.bound='1';
+      handle.addEventListener('mousedown', e=>{
+        e.preventDefault(); e.stopPropagation();
+        const startX = e.pageX;
+        const startW = th.offsetWidth;
+        table.classList.add('resizing');
+        function onMove(ev){
+          const newW = Math.max(40, startW + (ev.pageX - startX));
+          cols[i].style.width = newW+'px';
+        }
+        function onUp(){
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          table.classList.remove('resizing');
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  });
+}
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function showTab(id,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));document.getElementById('panel-'+id).classList.add('on');btn.classList.add('on');}
