@@ -294,7 +294,8 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
           <div class="fgrp"><label>📅 Día A (anterior)</label><select id="cmp-a" class="ss" onchange="renderCmp()"></select></div>
           <div class="fgrp"><label>📅 Día B (posterior)</label><select id="cmp-b" class="ss" onchange="renderCmp()"></select></div>
           <button class="bsm" onclick="swapCmp()" style="align-self:flex-end">⇄ Invertir</button>
-          <div id="cmp-cnt" style="margin-left:auto;align-self:flex-end;font-size:11px;color:#6b7a99"></div>
+          <div class="fgrp" style="flex:1;min-width:180px"><label>🔍 Buscar clave / nombre</label><input id="cmp-search" class="si2" type="text" placeholder="Ej: 133 o TRIM..." oninput="renderCmp()" style="width:100%"/></div>
+          <div id="cmp-cnt" style="align-self:flex-end;font-size:11px;color:#6b7a99"></div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           <div class="fgrp"><label>👤 Comprador</label><select id="cmp-comp" multiple onchange="renderCmp()"></select></div>
@@ -306,45 +307,56 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        <div class="kpi" style="--kc:#c0392b;flex:1;min-width:160px"><div class="kpi-lbl">🆕 Nuevas Faltantes</div><div class="kpi-val" id="cmp-nuevas-n">0</div></div>
-        <div class="kpi" style="--kc:#2e7d32;flex:1;min-width:160px"><div class="kpi-lbl">✅ Resueltas</div><div class="kpi-val" id="cmp-resueltas-n">0</div></div>
+        <div class="kpi" style="--kc:#c0392b;flex:1;min-width:150px"><div class="kpi-lbl">🆕 Nuevas Faltantes</div><div class="kpi-val" id="cmp-nuevas-n">0</div></div>
+        <div class="kpi" style="--kc:#2e7d32;flex:1;min-width:150px"><div class="kpi-lbl">✅ Resueltas c/Inventario</div><div class="kpi-val" id="cmp-resInv-n">0</div></div>
+        <div class="kpi" style="--kc:#5a5a99;flex:1;min-width:150px"><div class="kpi-lbl">🔄 Reclasificadas/Descontinuadas</div><div class="kpi-val" id="cmp-resDesc-n">0</div></div>
       </div>
       <div style="display:flex;gap:14px;flex-wrap:wrap">
-        <div style="flex:1;min-width:340px">
+        <div style="flex:1;min-width:280px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
             <h3 style="font-size:13px;font-weight:700;color:#c0392b">🆕 Nuevas Faltantes</h3>
             <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('nuevas')">⬇ Excel</button>
           </div>
           <div class="dtw"><table class="dt resizable">
-            <colgroup><col style="width:80px"><col style="min-width:220px"><col style="width:95px"><col style="width:90px"><col style="width:105px"></colgroup>
+            <colgroup><col style="width:80px"><col style="min-width:200px"><col style="width:120px"></colgroup>
             <thead><tr>
               <th onclick="srtCmp('nuevas','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
               <th onclick="srtCmp('nuevas','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('nuevas','marca')">Marca<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('nuevas','comprador')">Comprador<span class="si"></span><span class="rsz"></span></th>
               <th onclick="srtCmp('nuevas','clmov')">Clasif.Mov.<span class="si"></span></th>
             </tr></thead><tbody id="cmp-nuevas-body"></tbody></table></div>
-          <div id="cmp-nuevas-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves nuevas en este rango</div>
+          <div id="cmp-nuevas-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves en esta categoría</div>
         </div>
-        <div style="flex:1;min-width:340px">
+        <div style="flex:1;min-width:280px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <h3 style="font-size:13px;font-weight:700;color:#2e7d32">✅ Resueltas</h3>
-            <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('resueltas')">⬇ Excel</button>
+            <h3 style="font-size:13px;font-weight:700;color:#2e7d32">✅ Resueltas c/Inventario</h3>
+            <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('resInv')">⬇ Excel</button>
           </div>
           <div class="dtw"><table class="dt resizable">
-            <colgroup><col style="width:80px"><col style="min-width:220px"><col style="width:95px"><col style="width:90px"><col style="width:105px"></colgroup>
+            <colgroup><col style="width:80px"><col style="min-width:200px"><col style="width:120px"></colgroup>
             <thead><tr>
-              <th onclick="srtCmp('resueltas','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('resueltas','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('resueltas','marca')">Marca<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('resueltas','comprador')">Comprador<span class="si"></span><span class="rsz"></span></th>
-              <th onclick="srtCmp('resueltas','clmov')">Clasif.Mov.<span class="si"></span></th>
-            </tr></thead><tbody id="cmp-resueltas-body"></tbody></table></div>
-          <div id="cmp-resueltas-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves resueltas en este rango</div>
+              <th onclick="srtCmp('resInv','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resInv','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resInv','clmov')">Clasif.Mov.<span class="si"></span></th>
+            </tr></thead><tbody id="cmp-resInv-body"></tbody></table></div>
+          <div id="cmp-resInv-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves en esta categoría</div>
+        </div>
+        <div style="flex:1;min-width:280px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <h3 style="font-size:13px;font-weight:700;color:#5a5a99">🔄 Reclasificadas/Descontinuadas</h3>
+            <button class="bsm" style="margin-left:auto" onclick="expCmpExcel('resDesc')">⬇ Excel</button>
+          </div>
+          <div class="dtw"><table class="dt resizable">
+            <colgroup><col style="width:80px"><col style="min-width:200px"><col style="width:120px"></colgroup>
+            <thead><tr>
+              <th onclick="srtCmp('resDesc','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resDesc','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
+              <th onclick="srtCmp('resDesc','clmov')">Clasif.Mov.<span class="si"></span></th>
+            </tr></thead><tbody id="cmp-resDesc-body"></tbody></table></div>
+          <div id="cmp-resDesc-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves en esta categoría</div>
         </div>
       </div>
       <div style="margin-top:12px">
-        <button onclick="expCmpExcelAmbas()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar ambas a Excel (2 hojas)</button>
+        <button onclick="expCmpExcelAmbas()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar todo a Excel (3 hojas)</button>
       </div>
     </div>
   </div>
@@ -733,13 +745,29 @@ function initDet(){
 }
 function getSel(id){const s=document.getElementById(id);if(!s)return[];if(s.multiple)return[...s.selectedOptions].map(o=>o.value).filter(Boolean);return s.value?[s.value]:[];}
 function applyDetF(excl,inclSearch){
-  const dr=G.detR||[];const fecha=document.getElementById('f-fecha')?.value||'';
-  let rows=fecha?dr.filter(r=>r.fecha===fecha):[...dr];
+  const dr=G.detR||[];
+  const fecha=document.getElementById('f-fecha')?.value||'';
+  let rows = (excl!=='f-fecha' && fecha) ? dr.filter(r=>r.fecha===fecha) : [...dr];
   DFT.forEach(f=>{if(f.id===excl)return;const v=getSel(f.id);if(v.length)rows=rows.filter(r=>v.includes(f.fv(r)));});
   if(inclSearch){const q=(document.getElementById('f-search')?.value||'').toLowerCase().trim();if(q)rows=rows.filter(r=>r.clave.toLowerCase().includes(q)||r.nombre.toLowerCase().includes(q));}
   return rows;
 }
-function updDrops(){DFT.forEach(f=>{const sel=document.getElementById(f.id);if(!sel)return;const cur=new Set([...sel.selectedOptions].map(o=>o.value));const av=[...new Set(applyDetF(f.id,false).map(f.fv))].filter(Boolean).sort();if(f.id==='f-sem'){[...sel.options].forEach(o=>{o.disabled=!av.includes(o.value);if(o.disabled)o.selected=false;});return;}while(sel.options.length)sel.remove(0);av.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;o.selected=cur.has(v);sel.appendChild(o);});});}
+function updDrops(){
+  // Cascada de fecha: solo fechas con resultados que cumplan el buscador + demás filtros activos
+  const sf=document.getElementById('f-fecha');
+  if(sf){
+    const cur = sf.value;
+    const rowsForDate = applyDetF('f-fecha', true); // respeta buscador y demás multi-selects, ignora fecha
+    const fechasDisp = [...new Set(rowsForDate.map(r=>r.fecha))].filter(Boolean).sort();
+    while(sf.options.length) sf.remove(0);
+    const ao=document.createElement('option'); ao.value=''; ao.textContent='— Todas —'; sf.appendChild(ao);
+    fechasDisp.forEach(v=>{ const[y,m,dy]=v.split('-'); const o=document.createElement('option'); o.value=v; o.textContent=`${dy}/${m}/${y}`; sf.appendChild(o); });
+    if(fechasDisp.includes(cur)) sf.value = cur;
+    else if(cur==='') sf.value = '';
+    else if(fechasDisp.length) sf.value = fechasDisp[fechasDisp.length-1];
+  }
+  DFT.forEach(f=>{const sel=document.getElementById(f.id);if(!sel)return;const cur=new Set([...sel.selectedOptions].map(o=>o.value));const av=[...new Set(applyDetF(f.id,true).map(f.fv))].filter(Boolean).sort();if(f.id==='f-sem'){[...sel.options].forEach(o=>{o.disabled=!av.includes(o.value);if(o.disabled)o.selected=false;});return;}while(sel.options.length)sel.remove(0);av.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;o.selected=cur.has(v);sel.appendChild(o);});});
+}
 function clearDet(){DFT.forEach(f=>{const s=document.getElementById(f.id);if(!s)return;[...s.options].forEach(o=>{o.selected=false;o.disabled=false;});});const fs=document.getElementById('f-search');if(fs)fs.value='';const ff=document.getElementById('f-fecha');if(ff&&G.detF&&G.detF.length)ff.value=G.detF[G.detF.length-1];dp=0;renderDet();}
 function srtD(col){dSort.d=dSort.c===col?(dSort.d==='asc'?'desc':'asc'):'asc';dSort.c=col;document.querySelectorAll('.dt th').forEach(th=>{th.classList.remove('sa','sd');if(th.getAttribute('onclick')===`srtD('${col}')`)th.classList.add(dSort.d==='asc'?'sa':'sd');});dp=0;renderDetTbl();}
 function sortedDet(rows){const{c,d}=dSort,num=['meses_inv','obj_meses','t_entrega','existencias','bo'];return[...rows].sort((a,b)=>{let va=a[c],vb=b[c];if(c==='semaforo'){va=SORD[va]??9;vb=SORD[vb]??9;}else if(num.includes(c)){va=+va||0;vb=+vb||0;}else{va=String(va||'').toLowerCase();vb=String(vb||'').toLowerCase();}return(va<vb?-1:va>vb?1:0)*(d==='asc'?1:-1);});}
@@ -787,25 +815,49 @@ function clearCmp(){
   ['cmp-comp','cmp-clmov','cmp-marca'].forEach(id=>{
     const s=document.getElementById(id); if(s) [...s.options].forEach(o=>o.selected=false);
   });
+  const sb=document.getElementById('cmp-search'); if(sb) sb.value='';
   renderCmp();
 }
 function getCmpSel(id){
   const s=document.getElementById(id); if(!s) return [];
   return [...s.selectedOptions].map(o=>o.value).filter(Boolean);
 }
-let cmpData={nuevas:[],resueltas:[]};
-let cmpSort={nuevas:{col:null,dir:'asc'},resueltas:{col:null,dir:'asc'}};
+let cmpData={nuevas:[],resInv:[],resDesc:[]};
+let cmpSort={nuevas:{col:null,dir:'asc'},resInv:{col:null,dir:'asc'},resDesc:{col:null,dir:'asc'}};
 
 // Calcula nuevas+resueltas para un par de fechas dado, SIN aplicar filtros comp/clmov/marca.
 // Se usa para saber qué compradores/clasif/marca tuvieron algún CAMBIO real.
 function calcCambios(detR, fechaA, fechaB){
-  const rowsA = detR.filter(r=>r.fecha===fechaA && r.estatus==='FALTANTE');
-  const rowsB = detR.filter(r=>r.fecha===fechaB && r.estatus==='FALTANTE');
-  const clavesA = new Set(rowsA.map(r=>r.clave));
-  const clavesB = new Set(rowsB.map(r=>r.clave));
-  const nuevas    = rowsB.filter(r=>!clavesA.has(r.clave));
-  const resueltas = rowsA.filter(r=>!clavesB.has(r.clave));
-  return { nuevas, resueltas, cambios: [...nuevas, ...resueltas] };
+  const rowsA_falt = detR.filter(r=>r.fecha===fechaA && r.estatus==='FALTANTE');
+  const rowsB_falt = detR.filter(r=>r.fecha===fechaB && r.estatus==='FALTANTE');
+  const rowsB_all  = detR.filter(r=>r.fecha===fechaB); // todas las filas de B, no solo faltantes
+  const clavesA_falt = new Set(rowsA_falt.map(r=>r.clave));
+  const clavesB_falt = new Set(rowsB_falt.map(r=>r.clave));
+  const clavesB_all   = new Set(rowsB_all.map(r=>r.clave));
+
+  const nuevas = rowsB_falt.filter(r=>!clavesA_falt.has(r.clave));
+
+  // Resueltas: claves que eran FALTANTE en A y ya no son FALTANTE en B
+  const resueltasRaw = rowsA_falt.filter(r=>!clavesB_falt.has(r.clave));
+  // Subdividir: con inventario (sigue existiendo en B, con otro estatus) vs desaparecida/reclasificada (ya no aparece en B)
+  const resueltasConInventario = resueltasRaw.filter(r=>clavesB_all.has(r.clave));
+  const resueltasDesaparecidas = resueltasRaw.filter(r=>!clavesB_all.has(r.clave));
+
+  return {
+    nuevas,
+    resueltas: resueltasRaw,
+    resueltasConInventario,
+    resueltasDesaparecidas,
+    cambios: [...nuevas, ...resueltasRaw]
+  };
+}
+
+function getCmpSearch(){
+  return (document.getElementById('cmp-search')?.value || '').toLowerCase().trim();
+}
+function matchSearch(r, q){
+  if(!q) return true;
+  return (r.clave||'').toLowerCase().includes(q) || (r.nombre||'').toLowerCase().includes(q);
 }
 
 function updCmpDropdowns(){
@@ -813,17 +865,20 @@ function updCmpDropdowns(){
   const compSel  = getCmpSel('cmp-comp');
   const clmovSel = getCmpSel('cmp-clmov');
   const marcaSel = getCmpSel('cmp-marca');
+  const q = getCmpSearch();
 
   function byNonDateFilters(rows, excludeId){
     let r = rows;
     if(excludeId!=='cmp-comp'  && compSel.length)  r = r.filter(x=>compSel.includes(x.comprador));
     if(excludeId!=='cmp-clmov' && clmovSel.length) r = r.filter(x=>clmovSel.includes(x.clmov));
     if(excludeId!=='cmp-marca' && marcaSel.length) r = r.filter(x=>marcaSel.includes(x.marca));
+    if(q) r = r.filter(x=>matchSearch(x,q));
     return r;
   }
 
   // ── Fechas disponibles para A y B: solo fechas donde, comparadas con ALGUNA otra fecha
-  // disponible, exista al menos un cambio (nueva o resuelta) que cumpla los filtros activos ──
+  // disponible, exista al menos un cambio (nueva o resuelta) que cumpla los filtros activos
+  // (incluyendo el buscador) ──
   const todasFechas = [...new Set(detR.map(r=>r.fecha))].sort();
   function fechaTieneCambioCon(fecha, otrasFechas){
     return otrasFechas.some(otra=>{
@@ -832,7 +887,6 @@ function updCmpDropdowns(){
       return byNonDateFilters(cambios, null).length > 0;
     });
   }
-  // Una fecha es válida para A o B si tiene al menos un cambio respecto a cualquier otra fecha
   const fechasConCambios = todasFechas.filter(f => fechaTieneCambioCon(f, todasFechas));
   const fechasDisponibles = fechasConCambios.length ? fechasConCambios : todasFechas;
 
@@ -853,11 +907,16 @@ function updCmpDropdowns(){
   const fechaA = document.getElementById('cmp-a')?.value;
   const fechaB = document.getElementById('cmp-b')?.value;
 
-  // ── Comprador/Clasif/Marca: solo los que tienen un CAMBIO real entre fechaA y fechaB ──
+  // ── Comprador/Clasif/Marca: solo los que tienen un CAMBIO real (que además cumpla el buscador) ──
   const { cambios } = calcCambios(detR, fechaA, fechaB);
+  const cambiosBusq = q ? cambios.filter(r=>matchSearch(r,q)) : cambios;
 
   function avail(excludeId){
-    return byNonDateFilters(cambios, excludeId);
+    let r = cambiosBusq;
+    if(excludeId!=='cmp-comp'  && compSel.length)  r = r.filter(x=>compSel.includes(x.comprador));
+    if(excludeId!=='cmp-clmov' && clmovSel.length) r = r.filter(x=>clmovSel.includes(x.clmov));
+    if(excludeId!=='cmp-marca' && marcaSel.length) r = r.filter(x=>marcaSel.includes(x.marca));
+    return r;
   }
   function popMultiCascade(id, field, excludeId){
     const s=document.getElementById(id); if(!s) return;
@@ -884,26 +943,31 @@ function renderCmp(){
   const compSel  = getCmpSel('cmp-comp');
   const clmovSel = getCmpSel('cmp-clmov');
   const marcaSel = getCmpSel('cmp-marca');
+  const q = getCmpSearch();
 
   function applyFiltros(rows){
     let r = rows;
     if(compSel.length)  r = r.filter(x=>compSel.includes(x.comprador));
     if(clmovSel.length) r = r.filter(x=>clmovSel.includes(x.clmov));
     if(marcaSel.length) r = r.filter(x=>marcaSel.includes(x.marca));
+    if(q) r = r.filter(x=>matchSearch(x,q));
     return r;
   }
 
-  const { nuevas, resueltas } = calcCambios(detR, fechaA, fechaB);
-  cmpData.nuevas    = applyFiltros(nuevas);
-  cmpData.resueltas = applyFiltros(resueltas);
+  const { nuevas, resueltasConInventario, resueltasDesaparecidas } = calcCambios(detR, fechaA, fechaB);
+  cmpData.nuevas  = applyFiltros(nuevas);
+  cmpData.resInv  = applyFiltros(resueltasConInventario);
+  cmpData.resDesc = applyFiltros(resueltasDesaparecidas);
 
-  document.getElementById('cmp-nuevas-n').textContent    = cmpData.nuevas.length;
-  document.getElementById('cmp-resueltas-n').textContent = cmpData.resueltas.length;
+  document.getElementById('cmp-nuevas-n').textContent  = cmpData.nuevas.length;
+  document.getElementById('cmp-resInv-n').textContent  = cmpData.resInv.length;
+  document.getElementById('cmp-resDesc-n').textContent = cmpData.resDesc.length;
   const fLbl = f => f ? f.split('-').reverse().join('/') : '';
   document.getElementById('cmp-cnt').innerHTML = `<span style="background:#e8f0fe;color:#1e3a5f;border-radius:6px;padding:4px 10px;font-weight:700">${fLbl(fechaA)} → ${fLbl(fechaB)}</span>`;
 
   renderCmpTbl('nuevas');
-  renderCmpTbl('resueltas');
+  renderCmpTbl('resInv');
+  renderCmpTbl('resDesc');
   setTimeout(initColResize,50);
 }
 
@@ -911,12 +975,14 @@ function srtCmp(which,col){
   const s=cmpSort[which];
   s.dir = (s.col===col && s.dir==='asc') ? 'desc' : 'asc';
   s.col = col;
-  // Actualizar indicadores visuales en encabezados de esa tabla
-  const tableSel = which==='nuevas' ? '#cmpsub-nuevas .dt th' : '#cmpsub-resueltas .dt th';
-  document.querySelectorAll(tableSel).forEach(th=>{
-    th.classList.remove('sa','sd');
-    if(th.getAttribute('onclick')===`srtCmp('${which}','${col}')`) th.classList.add(s.dir==='asc'?'sa':'sd');
-  });
+  document.querySelectorAll('#cmp-'+which+'-body').forEach(()=>{});
+  const table = document.getElementById('cmp-'+which+'-body')?.closest('table');
+  if(table){
+    table.querySelectorAll('th').forEach(th=>{
+      th.classList.remove('sa','sd');
+      if(th.getAttribute('onclick')===`srtCmp('${which}','${col}')`) th.classList.add(s.dir==='asc'?'sa':'sd');
+    });
+  }
   renderCmpTbl(which);
 }
 
@@ -929,16 +995,12 @@ function renderCmpTbl(which){
       return (va<vb?-1:va>vb?1:0)*(dir==='asc'?1:-1);
     });
   }
-  const bodyId  = which==='nuevas' ? 'cmp-nuevas-body'  : 'cmp-resueltas-body';
-  const emptyId = which==='nuevas' ? 'cmp-nuevas-empty' : 'cmp-resueltas-empty';
-  const tb=document.getElementById(bodyId), em=document.getElementById(emptyId);
+  const tb=document.getElementById('cmp-'+which+'-body'), em=document.getElementById('cmp-'+which+'-empty');
   if(!rows.length){ tb.innerHTML=''; em.style.display='block'; return; }
   em.style.display='none';
   tb.innerHTML = rows.map(r=>`<tr>
     <td style="font-weight:600;color:#1e3a5f">${r.clave}</td>
     <td style="white-space:normal">${r.nombre}</td>
-    <td>${r.marca||'—'}</td>
-    <td>${S2N(r.comprador)}</td>
     <td style="font-size:11px">${r.clmov||'—'}</td>
   </tr>`).join('');
 }
@@ -951,33 +1013,35 @@ function buildCmpSheetRows(which){
       return (va<vb?-1:va>vb?1:0)*(dir==='asc'?1:-1);
     });
   }
-  return rows.map(r=>({
-    'Clave':r.clave, 'Nombre':r.nombre, 'Marca':r.marca||'',
-    'Comprador':r.comprador, 'Clasif.Mov.':r.clmov||''
-  }));
+  return rows.map(r=>({ 'Clave':r.clave, 'Nombre':r.nombre, 'Clasif.Mov.':r.clmov||'' }));
 }
+const CMP_SHEET_NAME = { nuevas:'Nuevas Faltantes', resInv:'Resueltas c-Inventario', resDesc:'Reclasificadas-Desc' };
 function expCmpExcel(which){
   if(typeof XLSX==='undefined'){ alert('Librería XLSX no disponible.'); return; }
   const rows = buildCmpSheetRows(which);
   if(!rows.length){ alert('Sin datos para exportar.'); return; }
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.json_to_sheet(rows);
-  ws['!cols']=[{wch:12},{wch:40},{wch:18},{wch:18},{wch:18}];
-  XLSX.utils.book_append_sheet(wb, ws, which==='nuevas' ? 'Nuevas Faltantes' : 'Resueltas');
+  ws['!cols']=[{wch:12},{wch:40},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws, CMP_SHEET_NAME[which]);
   const fechaA=document.getElementById('cmp-a')?.value||'', fechaB=document.getElementById('cmp-b')?.value||'';
   XLSX.writeFile(wb, `Comparativo_${which}_${fechaA}_a_${fechaB}.xlsx`);
 }
 function expCmpExcelAmbas(){
   if(typeof XLSX==='undefined'){ alert('Librería XLSX no disponible.'); return; }
   const rowsN = buildCmpSheetRows('nuevas');
-  const rowsR = buildCmpSheetRows('resueltas');
-  if(!rowsN.length && !rowsR.length){ alert('Sin datos para exportar.'); return; }
+  const rowsI = buildCmpSheetRows('resInv');
+  const rowsD = buildCmpSheetRows('resDesc');
+  if(!rowsN.length && !rowsI.length && !rowsD.length){ alert('Sin datos para exportar.'); return; }
+  const empty = [{Clave:'',Nombre:'Sin datos','Clasif.Mov.':''}];
   const wb=XLSX.utils.book_new();
-  const wsN=XLSX.utils.json_to_sheet(rowsN.length?rowsN:[{Clave:'',Nombre:'Sin datos',Marca:'',Comprador:'',Clmov:''}]);
-  const wsR=XLSX.utils.json_to_sheet(rowsR.length?rowsR:[{Clave:'',Nombre:'Sin datos',Marca:'',Comprador:'',Clmov:''}]);
-  wsN['!cols']=wsR['!cols']=[{wch:12},{wch:40},{wch:18},{wch:18},{wch:18}];
-  XLSX.utils.book_append_sheet(wb, wsN, 'Nuevas Faltantes');
-  XLSX.utils.book_append_sheet(wb, wsR, 'Resueltas');
+  const wsN=XLSX.utils.json_to_sheet(rowsN.length?rowsN:empty);
+  const wsI=XLSX.utils.json_to_sheet(rowsI.length?rowsI:empty);
+  const wsD=XLSX.utils.json_to_sheet(rowsD.length?rowsD:empty);
+  [wsN,wsI,wsD].forEach(ws=>ws['!cols']=[{wch:12},{wch:40},{wch:20}]);
+  XLSX.utils.book_append_sheet(wb, wsN, CMP_SHEET_NAME.nuevas);
+  XLSX.utils.book_append_sheet(wb, wsI, CMP_SHEET_NAME.resInv);
+  XLSX.utils.book_append_sheet(wb, wsD, CMP_SHEET_NAME.resDesc);
   const fechaA=document.getElementById('cmp-a')?.value||'', fechaB=document.getElementById('cmp-b')?.value||'';
   XLSX.writeFile(wb, `Comparativo_${fechaA}_a_${fechaB}.xlsx`);
 }
