@@ -7,11 +7,18 @@ on:
       - 'data/**.xls'
   workflow_dispatch:
 
+# Evita que dos ejecuciones choquen en el despliegue de GitHub Pages
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   procesar:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: 📥 Descargar repositorio
