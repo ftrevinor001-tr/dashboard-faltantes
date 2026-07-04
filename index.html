@@ -405,7 +405,7 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
           <div class="kpi" style="--kc:#c0392b;flex:1;min-width:150px"><div class="kpi-lbl">🔴 Nuevas en Riesgo</div><div class="kpi-val" id="rsk-nuevas-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses &lt; entrega sin BO</div></div>
           <div class="kpi" style="--kc:#e67e22;flex:1;min-width:150px"><div class="kpi-lbl">🟠 Riesgo crítico c/BO</div><div class="kpi-val" id="rsk-bo-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses &lt; entrega con Back Order</div></div>
           <div class="kpi" style="--kc:#2e7d32;flex:1;min-width:150px"><div class="kpi-lbl">✅ Salieron de riesgo</div><div class="kpi-val" id="rsk-salieron-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses ≥ entrega en día B</div></div>
-          <div class="kpi" style="--kc:#1565c0;flex:1;min-width:150px"><div class="kpi-lbl">🔵 Nuevo Sobre Inventario</div><div class="kpi-val" id="rsk-sobreInv-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses inv &gt; objetivo</div></div>
+          <div class="kpi" style="--kc:#1565c0;flex:1;min-width:150px"><div class="kpi-lbl">🔵 Nuevo Sobre Inventario</div><div class="kpi-val" id="rsk-sobreInv-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses inv ≥ objetivo + 1 mes</div></div>
         </div>
         <!-- Tablas lado a lado: Nuevas en riesgo sin BO + con BO -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
@@ -1312,9 +1312,9 @@ function calcRiesgo(detR, fechaA, fechaB){
   const idxAllA = {};
   allA.forEach(r=>{ idxAllA[r.clave]=r; });
   // Sobre Inventario en B: meses_inv > obj_meses (exceso respecto al objetivo)
-  const sobreInvB = new Set(allB.filter(r=>+r.obj_meses>0 && +r.meses_inv > +r.obj_meses).map(r=>r.clave));
+  const sobreInvB = new Set(allB.filter(r=>+r.obj_meses>0 && +r.meses_inv >= +r.obj_meses+1).map(r=>r.clave));
   // Sobre Inventario en A: ya tenían exceso
-  const sobreInvA = new Set(allA.filter(r=>+r.obj_meses>0 && +r.meses_inv > +r.obj_meses).map(r=>r.clave));
+  const sobreInvA = new Set(allA.filter(r=>+r.obj_meses>0 && +r.meses_inv >= +r.obj_meses+1).map(r=>r.clave));
   // Nuevas sobre inventario: tienen exceso en B pero NO en A (o no existían en A)
   const nuevasSobreInv = allB.filter(r=>sobreInvB.has(r.clave) && !sobreInvA.has(r.clave));
 
