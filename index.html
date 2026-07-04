@@ -87,6 +87,10 @@ h1{font-size:20px;font-weight:700;color:#1a2035}
 .dt td{padding:6px 8px;border-bottom:1px solid #f0f2f8;vertical-align:middle;white-space:nowrap}.dt td.wrap{white-space:normal}
 .dt tr:hover td{background:#f8f9fd}
 .dtw{overflow:auto;max-height:520px;border:1px solid #e2e6ed;border-radius:8px}
+#cmptab-riesgo .dt{font-size:9.5px}
+#cmptab-riesgo .dt th{padding:5px 4px;font-size:8.5px;letter-spacing:.2px}
+#cmptab-riesgo .dt td{padding:4px 4px;line-height:1.25}
+#cmptab-riesgo .dt td[style*="white-space:normal"]{word-break:break-word}
 .fgrp{display:flex;flex-direction:column;gap:4px}
 .fgrp label{font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px}
 .fgrp select[multiple]{min-height:65px;max-height:90px;padding:3px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:11.5px;color:#1a2035;background:#fff;font-family:inherit;min-width:128px;scrollbar-width:thin}
@@ -372,7 +376,7 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
         <div id="cmp-resDesc-empty" style="display:none;text-align:center;padding:24px;color:#6b7a99">Sin claves en esta categoría</div>
       </div>
             <div style="margin-top:12px">
-        <button onclick="expCmpExcelAmbas()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar todo a Excel (3 hojas)</button>
+        <button onclick="expCmpExcelAmbas()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar todo a Excel (4 hojas)</button>
       </div>
       </div><!-- /cmptab-faltantes -->
 
@@ -401,6 +405,7 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
           <div class="kpi" style="--kc:#c0392b;flex:1;min-width:150px"><div class="kpi-lbl">🔴 Nuevas en Riesgo</div><div class="kpi-val" id="rsk-nuevas-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses &lt; entrega sin BO</div></div>
           <div class="kpi" style="--kc:#e67e22;flex:1;min-width:150px"><div class="kpi-lbl">🟠 Riesgo crítico c/BO</div><div class="kpi-val" id="rsk-bo-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses &lt; entrega con Back Order</div></div>
           <div class="kpi" style="--kc:#2e7d32;flex:1;min-width:150px"><div class="kpi-lbl">✅ Salieron de riesgo</div><div class="kpi-val" id="rsk-salieron-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses ≥ entrega en día B</div></div>
+          <div class="kpi" style="--kc:#1565c0;flex:1;min-width:150px"><div class="kpi-lbl">🔵 Nuevo Sobre Inventario</div><div class="kpi-val" id="rsk-sobreInv-n">0</div><div style="font-size:10px;color:#6b7a99;margin-top:3px">meses inv &gt; objetivo</div></div>
         </div>
         <!-- Tablas lado a lado: Nuevas en riesgo sin BO + con BO -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
@@ -491,10 +496,35 @@ select{padding:7px 10px;border:1.5px solid #c9d4f0;border-radius:7px;font-size:1
               </tr></thead><tbody id="rsk-salieron-body"></tbody></table></div>
             <div id="rsk-salieron-empty" style="display:none;text-align:center;padding:16px;color:#6b7a99;font-size:12px">Sin claves en esta categoría</div>
           </div>
-          <div></div>
+<div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <h3 style="font-size:12px;font-weight:700;color:#1565c0">🔵 Nuevo Sobre Inventario</h3>
+              <button class="bsm" style="margin-left:auto;font-size:10px;padding:3px 8px" onclick="expRskExcel('sobreInv')">⬇ Excel</button>
+            </div>
+            <div class="dtw" style="max-height:380px"><table class="dt resizable">
+              <colgroup>
+                <col style="width:60px">
+                <col style="min-width:140px">
+                <col style="width:70px">
+                <col style="width:54px">
+                <col style="width:52px">
+                <col style="width:65px">
+                <col style="width:85px">
+              </colgroup>
+              <thead><tr>
+                <th onclick="srtRsk('sobreInv','clave')">Clave<span class="si"></span><span class="rsz"></span></th>
+                <th onclick="srtRsk('sobreInv','nombre')">Nombre<span class="si"></span><span class="rsz"></span></th>
+                <th onclick="srtRsk('sobreInv','marca')">Marca<span class="si"></span><span class="rsz"></span></th>
+                <th onclick="srtRsk('sobreInv','meses_inv')" class="num">M.Inv B<span class="si"></span></th>
+                <th onclick="srtRsk('sobreInv','obj_meses')" class="num">Obj.<span class="si"></span></th>
+                <th onclick="srtRsk('sobreInv','comprador')">Comp.<span class="si"></span><span class="rsz"></span></th>
+                <th onclick="srtRsk('sobreInv','clmov')">Clasif.Mov.<span class="si"></span></th>
+              </tr></thead><tbody id="rsk-sobreInv-body"></tbody></table></div>
+            <div id="rsk-sobreInv-empty" style="display:none;text-align:center;padding:16px;color:#6b7a99;font-size:12px">Sin claves en esta categoría</div>
+          </div>
         </div>
                 <div style="margin-top:12px">
-          <button onclick="expRskExcelAll()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar todo a Excel (3 hojas)</button>
+          <button onclick="expRskExcelAll()" style="padding:7px 16px;background:#1e7a4a;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Exportar todo a Excel (4 hojas)</button>
         </div>
       </div><!-- /cmptab-riesgo -->
     </div>
@@ -723,10 +753,14 @@ function applyData(d){
 // ── BUILD DATA FROM EXCEL ─────────────────────────────────────────────────────
 function pD(v){if(!v)return null;const s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);if(/^\d{2}\/\d{2}\/\d{4}/.test(s)){const p=s.split('/');return`${p[2]}-${p[1]}-${p[0]}`;}const d=new Date(s);return isNaN(d)?null:d.toISOString().slice(0,10);}
 function fF(f){const[,m,d]=f.split('-');return`${d}/${m}`;}
+// numX: parsea números que vienen como texto formateado de Excel (ej. "4,650.00" por formato contable)
+// Al leer con XLSX {raw:false} los números con formato de miles llegan como string con comas,
+// y `+"4,650"` da NaN → por eso se perdían Back Orders/valores grandes al cargar el Excel manualmente.
+function numX(v){if(v===null||v===undefined||v==='')return 0;if(typeof v==='number')return isNaN(v)?0:v;const s=String(v).replace(/,/g,'').trim();const n=parseFloat(s);return isNaN(n)?0:n;}
 function sBy(rows,fn){const m={};rows.forEach(r=>{const k=fn(r);m[k]=(m[k]||0)+r.claves;});return m;}
 function getSem(r){const e=String(r.estatus||'').toUpperCase(),bo=+r.bo||0,mi=+r.meses_inv||0,te=+r.t_entrega||0,ob=+r.obj_meses||0;if(e==='FALTANTE'&&bo===0)return'ROJO';if(e==='FALTANTE'&&bo>0)return'AMARILLO';if(e==='RIESGO'&&bo===0&&mi<te)return'ROJO';if(mi<te&&bo>0)return'NARANJA';if(mi<ob&&mi>=te)return'MORADO';if(e==='SOBRE INVENTARIO'||mi>(ob+te))return'AZUL';return'VERDE';}
 function buildData(raw,rawD,fn){
-  const rows=raw.map(r=>({fecha:pD(String(r['Fecha']||'')),comprador:String(r['COMPRADOR']||'').trim().toUpperCase(),clasificacion:String(r['Clasificacion']||'').trim().toUpperCase(),mov:String(r['Clasificacion de mov']||'').trim().toUpperCase(),claves:parseFloat(r['Claves']||0)||0})).filter(r=>r.fecha&&r.comprador&&!EXCL.includes(r.comprador)&&r.clasificacion&&r.clasificacion!=='(EN BLANCO)');
+  const rows=raw.map(r=>({fecha:pD(String(r['Fecha']||'')),comprador:String(r['COMPRADOR']||'').trim().toUpperCase(),clasificacion:String(r['Clasificacion']||'').trim().toUpperCase(),mov:String(r['Clasificacion de mov']||'').trim().toUpperCase(),claves:numX(r['Claves'])})).filter(r=>r.fecha&&r.comprador&&!EXCL.includes(r.comprador)&&r.clasificacion&&r.clasificacion!=='(EN BLANCO)');
   const fechas=[...new Set(rows.map(r=>r.fecha))].sort();
   const compradores=[...new Set(rows.map(r=>r.comprador))].sort();
   const falt=rows.filter(r=>r.mov==='FALTANTE');
@@ -746,7 +780,7 @@ function buildData(raw,rawD,fn){
   function st(sk,skA,bd){const f1=bd[lastAnt]||0,f2=bd[uf]||0,pk=Math.max(0,...fU.map(f=>bd[f]||0));return{skus:sk,f1,f2,pico:pk,pct_f1:skA>0?+(f1/skA*100).toFixed(2):0,pct_f2:sk>0?+(f2/sk*100).toFixed(2):0,pct_pico:sk>0?+(pk/sk*100).toFixed(2):0};}
   const CDATA={};compradores.forEach(c=>{CDATA[c]={};[...CLS,'TOTAL'].forEach(cl=>{CDATA[c][cl]=st(uS(uni,c,cl),uS(uniA,c,cl),cl==='TOTAL'?compByDay[c]:compClByDay[c][cl]);});});
   const AREA={};[...CLS,'TOTAL'].forEach(cl=>{const fl=falt.filter(r=>cl==='TOTAL'||r.clasificacion===cl);AREA[cl]=st(uS(uni,null,cl),uS(uniA,null,cl),sBy(fl,r=>r.fecha));});
-  const detR=rawD.map(r=>({fecha:pD(String(r['Fecha']||'')),clave:r['Clave']||'',nombre:r['Nombre']||'',marca:r['Marca']||'',unidad:r['Unidad']||'',clasificacion:String(r['Clasificación']||'').trim(),existencias:+r['Existencias']||0,grupo:String(r['GRUPO']||'').trim(),comprador:String(r['COMPRADOR']||'').trim().toUpperCase(),clmov:String(r['Clasificación por movimiento']||'').trim().toUpperCase(),t_entrega:+r['Tiempo de entrega']||0,obj_meses:+r['Objetivo_Meses de inventario']||0,meses_inv:+r['Meses de inventario']||0,estatus:String(r['Clasificacion_estatus de inventario']||'').trim().toUpperCase(),reorden:String(r['Clasificacion_Punto de reorden']||'').trim(),bo:+r['Back Order']||0})).filter(r=>r.fecha&&r.comprador&&!EXCL.includes(r.comprador));
+  const detR=rawD.map(r=>({fecha:pD(String(r['Fecha']||'')),clave:r['Clave']||'',nombre:r['Nombre']||'',marca:r['Marca']||'',unidad:r['Unidad']||'',clasificacion:String(r['Clasificación']||'').trim(),existencias:numX(r['Existencias']),grupo:String(r['GRUPO']||'').trim(),comprador:String(r['COMPRADOR']||'').trim().toUpperCase(),clmov:String(r['Clasificación por movimiento']||'').trim().toUpperCase(),t_entrega:numX(r['Tiempo de entrega']),obj_meses:numX(r['Objetivo_Meses de inventario']),meses_inv:numX(r['Meses de inventario']),estatus:String(r['Clasificacion_estatus de inventario']||'').trim().toUpperCase(),reorden:String(r['Clasificacion_Punto de reorden']||'').trim(),bo:numX(r['Back Order'])})).filter(r=>r.fecha&&r.comprador&&!EXCL.includes(r.comprador));
   detR.forEach(r=>{r.semaforo=getSem(r);});
   function uq(f){return[...new Set(detR.map(r=>r[f]))].filter(Boolean).sort();}
   const ufd=uq('fecha');
@@ -1219,8 +1253,8 @@ function initColResize(){
 }
 
 // ── COMPARATIVO DE RIESGO ─────────────────────────────────────────────────────
-let rskData = { nuevas:[], bo:[], salieron:[] };
-let rskSort = { nuevas:{col:null,dir:'asc'}, bo:{col:null,dir:'asc'}, salieron:{col:null,dir:'asc'} };
+let rskData = { nuevas:[], bo:[], salieron:[], sobreInv:[] };
+let rskSort = { nuevas:{col:null,dir:'asc'}, bo:{col:null,dir:'asc'}, salieron:{col:null,dir:'asc'}, sobreInv:{col:null,dir:'asc'} };
 
 function showCmpTab(id, btn){
   document.querySelectorAll('#panel-comp .spanel').forEach(p=>p.classList.remove('on'));
@@ -1262,17 +1296,29 @@ function calcRiesgo(detR, fechaA, fechaB){
   const enRiesgoA = new Set(rowsA.filter(r=>+r.meses_inv < +r.t_entrega).map(r=>r.clave));
   const enRiesgoB = new Set(rowsB.filter(r=>+r.meses_inv < +r.t_entrega).map(r=>r.clave));
 
-  // Nuevas en riesgo: en riesgo en B pero NO en riesgo en A (o no existían)
+  // Nuevas en riesgo: en riesgo en B pero NO en riesgo en A
   const nuevasEnRiesgoB = rowsB.filter(r=>+r.meses_inv < +r.t_entrega && !enRiesgoA.has(r.clave));
-  // Separar por BO
   const nuevasSinBO = nuevasEnRiesgoB.filter(r=>!r.bo || +r.bo===0);
   const nuevasConBO = nuevasEnRiesgoB.filter(r=>+r.bo>0);
 
-  // Salieron de riesgo: estaban en riesgo en A pero ya no en B (meses_inv >= t_entrega en B)
+  // Salieron de riesgo: estaban en riesgo en A pero ya no en B
   const salieron = rowsA.filter(r=>enRiesgoA.has(r.clave) && idxB[r.clave] && +idxB[r.clave].meses_inv >= +idxB[r.clave].t_entrega)
-    .map(r=>({ ...idxB[r.clave] })); // usamos datos del día B para mostrar estado actual
+    .map(r=>({...idxB[r.clave]}));
 
-  return { nuevasSinBO, nuevasConBO, salieron };
+  // Sobre Inventario: pasaron de meses_inv <= obj_meses en A a meses_inv > obj_meses en B
+  // (todas las filas, incluyendo faltantes)
+  const allA = detR.filter(r=>r.fecha===fechaA);
+  const allB = detR.filter(r=>r.fecha===fechaB);
+  const idxAllA = {};
+  allA.forEach(r=>{ idxAllA[r.clave]=r; });
+  // Sobre Inventario en B: meses_inv > obj_meses (exceso respecto al objetivo)
+  const sobreInvB = new Set(allB.filter(r=>+r.obj_meses>0 && +r.meses_inv > +r.obj_meses).map(r=>r.clave));
+  // Sobre Inventario en A: ya tenían exceso
+  const sobreInvA = new Set(allA.filter(r=>+r.obj_meses>0 && +r.meses_inv > +r.obj_meses).map(r=>r.clave));
+  // Nuevas sobre inventario: tienen exceso en B pero NO en A (o no existían en A)
+  const nuevasSobreInv = allB.filter(r=>sobreInvB.has(r.clave) && !sobreInvA.has(r.clave));
+
+  return { nuevasSinBO, nuevasConBO, salieron, nuevasSobreInv };
 }
 
 function updRskDropdowns(){
@@ -1364,19 +1410,21 @@ function renderRsk(){
     return r;
   }
 
-  const {nuevasSinBO, nuevasConBO, salieron} = calcRiesgo(detR, fA, fB);
-  rskData.nuevas   = applyFilters(nuevasSinBO);
-  rskData.bo       = applyFilters(nuevasConBO);
-  rskData.salieron = applyFilters(salieron);
+  const {nuevasSinBO, nuevasConBO, salieron, nuevasSobreInv} = calcRiesgo(detR, fA, fB);
+  rskData.nuevas    = applyFilters(nuevasSinBO);
+  rskData.bo        = applyFilters(nuevasConBO);
+  rskData.salieron  = applyFilters(salieron);
+  rskData.sobreInv  = applyFilters(nuevasSobreInv);
 
-  document.getElementById('rsk-nuevas-n').textContent   = rskData.nuevas.length;
-  document.getElementById('rsk-bo-n').textContent       = rskData.bo.length;
-  document.getElementById('rsk-salieron-n').textContent = rskData.salieron.length;
+  document.getElementById('rsk-nuevas-n').textContent    = rskData.nuevas.length;
+  document.getElementById('rsk-bo-n').textContent        = rskData.bo.length;
+  document.getElementById('rsk-salieron-n').textContent  = rskData.salieron.length;
+  document.getElementById('rsk-sobreInv-n').textContent  = rskData.sobreInv.length;
 
   const fLbl=f=>f?f.split('-').reverse().join('/'):'';
   document.getElementById('rsk-cnt').innerHTML=`<span style="background:#fff3e0;color:#e67e22;border-radius:6px;padding:4px 10px;font-weight:700">${fLbl(fA)} → ${fLbl(fB)}</span>`;
 
-  renderRskTbl('nuevas'); renderRskTbl('bo'); renderRskTbl('salieron');
+  renderRskTbl('nuevas'); renderRskTbl('bo'); renderRskTbl('salieron'); renderRskTbl('sobreInv');
   setTimeout(initColResize,50);
 }
 
@@ -1395,7 +1443,7 @@ function renderRskTbl(which){
   const rows=[...rskData[which]];
   const {col,dir}=rskSort[which];
   if(col){
-    const num=['meses_inv','t_entrega','bo'];
+    const num=['meses_inv','t_entrega','bo','obj_meses'];
     rows.sort((a,b)=>{
       let va=a[col],vb=b[col];
       if(num.includes(col)){va=+va||0;vb=+vb||0;}
@@ -1408,14 +1456,16 @@ function renderRskTbl(which){
   if(!rows.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
   if(em)em.style.display='none';
   const hasBo=(which==='bo');
+  const isSI=(which==='sobreInv');
   tb.innerHTML=rows.map(r=>{
     const boCell=hasBo?`<td class="num" style="color:#c0392b;font-weight:700">${(+r.bo).toLocaleString()}</td>`:'';
+    const col5=isSI?(+r.obj_meses).toFixed(2):r.t_entrega;
     return`<tr>
       <td style="font-weight:600;color:#1e3a5f">${r.clave}</td>
       <td style="white-space:normal">${r.nombre}</td>
       <td>${r.marca||'—'}</td>
       <td class="num" style="color:#e67e22;font-weight:700">${(+r.meses_inv).toFixed(2)}</td>
-      <td class="num">${r.t_entrega}</td>
+      <td class="num">${col5}</td>
       ${boCell}
       <td style="font-size:11px">${S2N(r.comprador)}</td>
       <td style="font-size:11px">${r.clmov||'—'}</td>
@@ -1427,10 +1477,11 @@ function buildRskRows(which){
   const rows=[...rskData[which]];
   const {col,dir}=rskSort[which];
   if(col){
-    const num=['meses_inv','t_entrega','bo'];
+    const num=['meses_inv','t_entrega','bo','obj_meses'];
     rows.sort((a,b)=>{let va=a[col],vb=b[col];if(num.includes(col)){va=+va||0;vb=+vb||0;}else{va=String(va||'').toLowerCase();vb=String(vb||'').toLowerCase();}return(va<vb?-1:va>vb?1:0)*(dir==='asc'?1:-1);});
   }
-  return rows.map(r=>({'Clave':r.clave,'Nombre':r.nombre,'Marca':r.marca||'','Meses Inv.':+(+r.meses_inv).toFixed(2),'T.Entrega':+r.t_entrega,'Back Order':+r.bo||0,'Comprador':r.comprador,'Clasif.Mov.':r.clmov||''}));
+  const isSI=which==='sobreInv';
+  return rows.map(r=>({'Clave':r.clave,'Nombre':r.nombre,'Marca':r.marca||'','Meses Inv.':+(+r.meses_inv).toFixed(2),...(!isSI?{'T.Entrega':+r.t_entrega}:{}),...(isSI?{'Obj.Meses':+r.obj_meses||0}:{}),'Back Order':+r.bo||0,'Comprador':r.comprador,'Clasif.Mov.':r.clmov||''}));
 }
 const RSK_COLS=[{wch:12},{wch:40},{wch:18},{wch:10},{wch:10},{wch:12},{wch:16},{wch:20}];
 function expRskExcel(which){
@@ -1452,9 +1503,12 @@ function expRskExcelAll(){
   const wsB=XLSX.utils.json_to_sheet(buildRskRows('bo').length?buildRskRows('bo'):empty);
   const wsS=XLSX.utils.json_to_sheet(buildRskRows('salieron').length?buildRskRows('salieron'):empty);
   [wsN,wsB,wsS].forEach(ws=>ws['!cols']=RSK_COLS);
+  const wsSI=XLSX.utils.json_to_sheet(buildRskRows('sobreInv').length?buildRskRows('sobreInv'):empty);
+  wsSI['!cols']=RSK_COLS;
   XLSX.utils.book_append_sheet(wb,wsN,'Nuevas en Riesgo sinBO');
   XLSX.utils.book_append_sheet(wb,wsB,'Nuevas en Riesgo conBO');
   XLSX.utils.book_append_sheet(wb,wsS,'Salieron de Riesgo');
+  XLSX.utils.book_append_sheet(wb,wsSI,'Sobre Inventario');
   const fA=document.getElementById('rsk-a')?.value||'', fB=document.getElementById('rsk-b')?.value||'';
   XLSX.writeFile(wb,`Riesgo_${fA}_a_${fB}.xlsx`);
 }
