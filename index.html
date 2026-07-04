@@ -1298,8 +1298,11 @@ function calcRiesgo(detR, fechaA, fechaB){
 
   // Nuevas en riesgo: en riesgo en B pero NO en riesgo en A
   const nuevasEnRiesgoB = rowsB.filter(r=>+r.meses_inv < +r.t_entrega && !enRiesgoA.has(r.clave));
-  const nuevasSinBO = nuevasEnRiesgoB.filter(r=>!r.bo || +r.bo===0);
-  const nuevasConBO = nuevasEnRiesgoB.filter(r=>+r.bo>0);
+  // Excluir "primeras compras": meses_inv=0 con existencia disponible no tiene historial de ventas
+  // para calcular rotación real, así que no se consideran riesgo genuino.
+  const esPrimeraCompra = r=>+r.meses_inv===0 && +r.existencias>0;
+  const nuevasSinBO = nuevasEnRiesgoB.filter(r=>(!r.bo || +r.bo===0) && !esPrimeraCompra(r));
+  const nuevasConBO = nuevasEnRiesgoB.filter(r=>+r.bo>0 && !esPrimeraCompra(r));
 
   // Salieron de riesgo: estaban en riesgo en A pero ya no en B
   const salieron = rowsA.filter(r=>enRiesgoA.has(r.clave) && idxB[r.clave] && +idxB[r.clave].meses_inv >= +idxB[r.clave].t_entrega)
