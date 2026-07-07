@@ -1284,8 +1284,8 @@ function calcRiesgo(detR, fechaA, fechaB){
   // Una clave está "en riesgo" cuando: estatus != FALTANTE Y meses_inv < t_entrega
   // Queremos las que ENTRARON en riesgo: estaban seguras en A (meses_inv >= t_entrega) y en riesgo en B
   // Y las que SALIERON de riesgo: estaban en riesgo en A y seguras en B
-  const rowsA = detR.filter(r=>r.fecha===fechaA && r.estatus!=='FALTANTE');
-  const rowsB = detR.filter(r=>r.fecha===fechaB && r.estatus!=='FALTANTE');
+  const rowsA = detR.filter(r=>r.fecha===fechaA && r.estatus!=='FALTANTE' && r.estatus!=='SIN COMPRA');
+  const rowsB = detR.filter(r=>r.fecha===fechaB && r.estatus!=='FALTANTE' && r.estatus!=='SIN COMPRA');
 
   // Índices por clave
   const idxA = {};
@@ -1310,8 +1310,8 @@ function calcRiesgo(detR, fechaA, fechaB){
 
   // Sobre Inventario: pasaron de meses_inv <= obj_meses en A a meses_inv > obj_meses en B
   // (todas las filas, incluyendo faltantes)
-  const allA = detR.filter(r=>r.fecha===fechaA);
-  const allB = detR.filter(r=>r.fecha===fechaB);
+  const allA = detR.filter(r=>r.fecha===fechaA && r.estatus!=='SIN COMPRA');
+  const allB = detR.filter(r=>r.fecha===fechaB && r.estatus!=='SIN COMPRA');
   const idxAllA = {};
   allA.forEach(r=>{ idxAllA[r.clave]=r; });
   // Sobre Inventario en B: meses_inv > obj_meses (exceso respecto al objetivo)
